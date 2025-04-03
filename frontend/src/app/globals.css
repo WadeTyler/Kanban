@@ -1,26 +1,46 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+    --background: #ffffff;
+    --foreground: #171717;
+    --color-accent: #41da98;
+    --color-accent-dark: #1f7951;
+    --color-dark: #031e1e;
+    --color-secondary: #c0c0c0;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+[data-theme="dark"] {
+    --background: #020a0a;
+    --foreground: #e0e0e0;
+    --color-accent: #41da98;
+    --color-accent-dark: #1f7951;
+    --color-dark: #031e1e;
+    --color-secondary: #c0c0c0;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+@theme {
+    --color-background: var(--background);
+    --color-foreground: var(--foreground);
+    --color-accent: var(--color-accent);
+    --color-accent-dark: var(--color-accent-dark);
+    --color-dark: var(--color-dark);
+    --color-secondary: var(--color-secondary);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+    background: var(--background);
+    color: var(--foreground);
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+body {
+    @apply lg:p-16 lg:pt-28 md:p-8 md:pt-20 p-4 pt-16;
+}
+
+.submit-btn {
+    @apply inline-flex items-center px-4 py-1 gap-2 border-foreground border cursor-pointer rounded-md hover:border-accent hover:text-accent duration-200;
+}
+
+.hover-btn {
+    @apply cursor-pointer duration-200 hover:bg-secondary/40 rounded-md flex items-center justify-center p-1;
 }
