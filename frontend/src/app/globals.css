@@ -1,12 +1,13 @@
 @import "tailwindcss";
 
 :root {
-    --background: #ffffff;
+    --background: #f4f4f4;
     --foreground: #171717;
     --color-accent: #41da98;
     --color-accent-dark: #1f7951;
     --color-dark: #031e1e;
-    --color-secondary: #c0c0c0;
+    --color-secondary: #8a8a8a;
+    --color-danger: #cb0505;
 }
 
 [data-theme="dark"] {
@@ -16,6 +17,7 @@
     --color-accent-dark: #1f7951;
     --color-dark: #031e1e;
     --color-secondary: #c0c0c0;
+    --color-danger: #ef3636;
 }
 
 @theme {
@@ -25,6 +27,7 @@
     --color-accent-dark: var(--color-accent-dark);
     --color-dark: var(--color-dark);
     --color-secondary: var(--color-secondary);
+    --color-danger: var(--color-danger);
 }
 
 body {
@@ -38,9 +41,29 @@ body {
 }
 
 .submit-btn {
-    @apply inline-flex items-center px-4 py-1 gap-2 border-foreground border cursor-pointer rounded-md hover:border-accent hover:text-accent duration-200;
+    @apply inline-flex items-center justify-center px-4 py-1 gap-2 border-foreground border cursor-pointer rounded-md hover:border-accent hover:text-accent duration-200 text-center;
+}
+
+.submit-btn2 {
+    @apply inline-flex items-center justify-center bg-accent text-white px-4 py-1 gap-2 border-foreground cursor-pointer rounded-md duration-200 text-center font-semibold hover:bg-white hover:text-accent  shadow-md hover:shadow-lg ;
 }
 
 .hover-btn {
     @apply cursor-pointer duration-200 hover:bg-secondary/40 rounded-md flex items-center justify-center p-1;
+}
+
+.form-container {
+    @apply w-full flex flex-col items-center justify-center gap-4 rounded-md border-accent p-4;
+}
+
+.input-container {
+    @apply flex flex-col gap-1 w-full;
+}
+
+.input-label {
+    @apply font-semibold text-secondary ;
+}
+
+.input-bar {
+    @apply w-full rounded-md border border-secondary p-2 focus:outline-none focus:border-accent duration-200 focus:bg-accent/20 placeholder:text-secondary/70 ;
 }

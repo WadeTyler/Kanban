@@ -1,12 +1,12 @@
 package net.tylerwade.kanban.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import java.sql.Timestamp;
+import java.util.List;
 
 @Entity
 @Table(name = "users")
@@ -25,6 +25,10 @@ public class User {
     private String profilePicture;
 
     private Timestamp createdAt = new Timestamp(System.currentTimeMillis());
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "owner", cascade = CascadeType.ALL)
+    @JsonIgnore
+    private List<Board> boards;
 
     public User(String userId, String name, String email, String profilePicture) {
         this.userId = userId;

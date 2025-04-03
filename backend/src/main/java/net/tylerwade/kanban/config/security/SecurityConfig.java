@@ -19,7 +19,7 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(withDefaults())
                 .authorizeHttpRequests(authz -> authz
-                                .requestMatchers("/", "/error").permitAll()
+                        .requestMatchers("/", "/error").permitAll()
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(e -> e

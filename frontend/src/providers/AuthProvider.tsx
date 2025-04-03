@@ -3,6 +3,7 @@ import React, {useEffect} from 'react';
 import {LOGIN_URL} from "@/environment";
 import useAuthStore from "@/stores/auth.store";
 import {useRouter} from "next/navigation";
+import LoadingSpinner from "@/components/LoadingSpinner";
 
 type AuthProviderType = {
   children: React.ReactNode;
@@ -19,15 +20,15 @@ const AuthProvider = ({children, authRequired = true, redirectTo = LOGIN_URL}: A
   const {user, isLoadingUser, loadUser} = useAuthStore();
 
   useEffect(() => {
-    if (!user && !isLoadingUser) {
+    if (!user) {
       loadUser();
     }
   }, [loadUser]);
 
-  if (isLoadingUser) {
+  if (isLoadingUser && authRequired) {
     return (
-      <div className="flex items-center justify-center h-screen">
-        <p>Loading...</p>
+      <div className="flex items-center justify-center w-full h-screen fixed top-0 left-0 z-40">
+        <LoadingSpinner cn="size-16 text-accent" />
       </div>
     )
   }

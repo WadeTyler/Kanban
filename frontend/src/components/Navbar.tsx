@@ -21,7 +21,7 @@ const Navbar = () => {
           </header>
         </Link>
 
-        <Link href="/dashboard">
+        <Link href="/boards">
           <section className="text-lg font-semibold inline-flex items-center gap-2 cursor-pointer hover-btn">
             <RiKanbanView />
             <span>Boards</span>

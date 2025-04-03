@@ -1,7 +1,7 @@
 import {create} from 'zustand';
 import {API_URL} from "@/environment";
 import {User} from "@/types/auth.types";
-import APIResponse from "@/types/APIResponse";
+import { APIResponse } from "@/types/APIResponse.types";
 
 interface AuthStore {
   user: User | null;
@@ -11,7 +11,7 @@ interface AuthStore {
 
 const useAuthStore = create<AuthStore>((set) => ({
   user: null,
-  isLoadingUser: false,
+  isLoadingUser: true,
 
   loadUser: async () => {
     set({ isLoadingUser: true });
