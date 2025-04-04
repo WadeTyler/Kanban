@@ -6,9 +6,7 @@ const ConnectedUsers = ({connectedUsers}: {
   connectedUsers: User[];
 }) => {
   return (
-    <div className="flex items-center justify-center gap-4 h-16">
-      <span className="text-foreground">Connected Users:</span>
-
+    <div className="flex items-center justify-center gap-4">
       {connectedUsers.map((user) => (
         <div key={user.userId} className="group relative">
           <img src={user.profilePicture} alt={`${user.name}'s Profile Picture`} className="w-8 h-8 rounded-full object-center object-cover"/>
