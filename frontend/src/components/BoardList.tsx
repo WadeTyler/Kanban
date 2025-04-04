@@ -4,6 +4,7 @@ import {RiAddLine} from "@remixicon/react";
 import {useWebSocketStore} from "@/stores/websocket.store";
 import {Board, BoardList as BoardListType} from "@/types/board.types";
 import LoadingSpinner from "@/components/LoadingSpinner";
+import {CreateNewListItem, ListItem} from "@/components/ListItem";
 
 export const BoardList = ({boardList, board}: {
   boardList: BoardListType,
@@ -12,7 +13,12 @@ export const BoardList = ({boardList, board}: {
   return (
     <div className="min-w-72 min-h-24 h-fit max-h-full flex flex-col p-2 gap-4 bg-secondary-dark shadow-lg hover:shadow-xl rounded-md border-secondary-dark border hover:border-accent duration-200 cursor-pointer">
       <h2 className="text-white font-semibold text-lg">{boardList.name}</h2>
-      <hr className="w-full border border-secondary"/>
+
+      {boardList.listItems.map((listItem) => (
+        <ListItem key={listItem.listItemId} listItem={listItem} />
+      ))}
+
+      <CreateNewListItem boardList={boardList} />
 
     </div>
   );

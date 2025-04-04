@@ -1,10 +1,14 @@
 package net.tylerwade.kanban.controller;
 
 import net.tylerwade.kanban.dto.CreateBoardListRequest;
+import net.tylerwade.kanban.dto.CreateListItemRequest;
+import net.tylerwade.kanban.exception.BadRequestException;
 import net.tylerwade.kanban.exception.NotFoundException;
 import net.tylerwade.kanban.exception.UnauthorizedException;
-import net.tylerwade.kanban.model.BoardList;
+import net.tylerwade.kanban.model.board.Board;
+import net.tylerwade.kanban.model.board.BoardList;
 import net.tylerwade.kanban.model.User;
+import net.tylerwade.kanban.model.board.ListItem;
 import net.tylerwade.kanban.service.BoardService;
 import net.tylerwade.kanban.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +35,6 @@ public class BoardListWSController {
     }
 
     @MessageMapping("/boards/{boardId}/lists/create")
-    @SendTo()
     public void createBoardList(@DestinationVariable String boardId, Principal principal, @Payload CreateBoardListRequest createBoardListRequest) throws UnauthorizedException, NotFoundException {
 
         User user = userService.getUser(principal.getName());
@@ -44,5 +47,20 @@ public class BoardListWSController {
         BoardList boardList = boardService.createBoardList(boardId, createBoardListRequest.getName(), user);
 
         this.messagingTemplate.convertAndSend("/topic/boards/" + boardId + "/lists/new", boardList);
+    }
+
+    @MessageMapping("/boards/{boardId}/lists/{listId}/items/create")
+    public void createListItem(@DestinationVariable String boardId, @DestinationVariable Long listId, Principal principal, @Payload CreateListItemRequest createListItemRequest) throws NotFoundException, UnauthorizedException, BadRequestException {
+        User user = userService.getUser(principal.getName());
+        Board board = boardService.getBoardById(boardId, user);
+
+        BoardList boardList = board.getLists().stream()
+                .filter(list -> list.getBoardListId().equals(listId))
+                .findFirst()
+                .orElseThrow(() -> new NotFoundException("List not found"));
+
+        BoardList updatedBoardList = boardService.createNewListItem(boardList, createListItemRequest);
+
+        this.messagingTemplate.convertAndSend("/topic/boards/" + boardId + "/lists/updated", updatedBoardList);
     }
 }

@@ -16,6 +16,18 @@ export type BoardList = {
   boardListId: number;
   name: string;
   position: number;
+  listItems: ListItem[];
+}
+
+export type ListItem = {
+  listItemId: number;
+  boardList: BoardList;
+  position: number;
+  title?: string;
+  description?: string;
+  dueDate?: string;
+  status?: string;
+  assignedTo?: User;
 }
 
 export type CreateBoardRequest = {

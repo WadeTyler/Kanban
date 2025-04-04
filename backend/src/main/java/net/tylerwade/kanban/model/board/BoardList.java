@@ -1,10 +1,12 @@
-package net.tylerwade.kanban.model;
+package net.tylerwade.kanban.model.board;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.util.List;
 
 @Entity
 @Table(name = "board_lists")
@@ -27,4 +29,8 @@ public class BoardList {
 
     @Column(nullable = false)
     private int position;
+
+    @OneToMany(mappedBy = "boardList", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    private List<ListItem> listItems;
+
 }

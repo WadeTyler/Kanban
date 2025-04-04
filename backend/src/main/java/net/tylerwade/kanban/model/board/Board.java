@@ -1,9 +1,10 @@
-package net.tylerwade.kanban.model;
+package net.tylerwade.kanban.model.board;
 
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import net.tylerwade.kanban.model.User;
 
 import java.sql.Timestamp;
 import java.util.List;

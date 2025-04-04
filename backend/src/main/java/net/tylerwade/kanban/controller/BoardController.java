@@ -6,7 +6,7 @@ import net.tylerwade.kanban.dto.CreateBoardRequest;
 import net.tylerwade.kanban.exception.BadRequestException;
 import net.tylerwade.kanban.exception.NotFoundException;
 import net.tylerwade.kanban.exception.UnauthorizedException;
-import net.tylerwade.kanban.model.Board;
+import net.tylerwade.kanban.model.board.Board;
 import net.tylerwade.kanban.model.User;
 import net.tylerwade.kanban.service.BoardService;
 import net.tylerwade.kanban.service.UserService;

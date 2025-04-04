@@ -31,7 +31,9 @@ const Page = () => {
     disconnectFromBoard,
     newBoardList,
     resetNewBoardList,
-    connectedUsers
+    connectedUsers,
+    updatedBoardList,
+    resetUpdatedBoardList
   } = useWebSocketStore();
 
 
@@ -80,6 +82,29 @@ const Page = () => {
       resetNewBoardList();
     }
   }, [newBoardList]);
+
+  // Handle boardlist updates
+  useEffect(() => {
+    if (updatedBoardList && board) {
+      console.log("Updating board list");
+      const newBoard = board;
+      if (!newBoard) return;
+
+      newBoard.lists = newBoard?.lists?.map((boardList) => {
+        if (boardList.boardListId === updatedBoardList.boardListId) {
+          return updatedBoardList;
+        } else {
+          return boardList;
+        }
+      });
+
+      setBoard(newBoard);
+      resetUpdatedBoardList();
+    }
+
+  }, [updatedBoardList]);
+
+  ////////////////////////// RETURNS //////////////////////////
 
   if (isLoadingBoard) {
     return (

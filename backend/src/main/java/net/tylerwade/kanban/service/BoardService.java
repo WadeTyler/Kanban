@@ -2,14 +2,17 @@ package net.tylerwade.kanban.service;
 
 import net.tylerwade.kanban.dto.AddMemberRequest;
 import net.tylerwade.kanban.dto.CreateBoardRequest;
+import net.tylerwade.kanban.dto.CreateListItemRequest;
 import net.tylerwade.kanban.exception.BadRequestException;
 import net.tylerwade.kanban.exception.NotFoundException;
 import net.tylerwade.kanban.exception.UnauthorizedException;
-import net.tylerwade.kanban.model.Board;
-import net.tylerwade.kanban.model.BoardList;
+import net.tylerwade.kanban.model.board.Board;
+import net.tylerwade.kanban.model.board.BoardList;
 import net.tylerwade.kanban.model.User;
+import net.tylerwade.kanban.model.board.ListItem;
 import net.tylerwade.kanban.repository.BoardListRepository;
 import net.tylerwade.kanban.repository.BoardRepository;
+import net.tylerwade.kanban.repository.ListItemRepository;
 import net.tylerwade.kanban.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -23,12 +26,14 @@ public class BoardService {
     private final BoardRepository boardRepository;
     private final BoardListRepository boardListRepository;
     private final UserRepository userRepository;
+    private final ListItemRepository listItemRepository;
 
     @Autowired
-    public BoardService(BoardRepository boardRepository, BoardListRepository boardListRepository, UserRepository userRepository) {
+    public BoardService(BoardRepository boardRepository, BoardListRepository boardListRepository, UserRepository userRepository, ListItemRepository listItemRepository) {
         this.boardRepository = boardRepository;
         this.boardListRepository = boardListRepository;
         this.userRepository = userRepository;
+        this.listItemRepository = listItemRepository;
     }
 
     public Iterable<Board> getAllUserBoards(User user) {
@@ -179,5 +184,29 @@ public class BoardService {
         board.setOwner(targetMember);
         boardRepository.save(board);
         return board;
+    }
+
+    public BoardList createNewListItem(BoardList boardList, CreateListItemRequest createListItemRequest) throws BadRequestException {
+        if (createListItemRequest.getTitle() == null || createListItemRequest.getTitle().isEmpty())
+            throw new BadRequestException("Title is required.");
+
+        ListItem newListItem = new ListItem();
+        newListItem.setTitle(createListItemRequest.getTitle());
+        newListItem.setBoardList(boardList);
+
+        // Find the next position for the new list item
+        int position = boardList.getListItems().stream()
+                .mapToInt(ListItem::getPosition)
+                .max()
+                .orElse(0);
+        if (!boardList.getListItems().isEmpty()) {
+            position++;
+        }
+
+        newListItem.setPosition(position);
+        boardList.getListItems().add(newListItem);
+
+        listItemRepository.save(newListItem);
+        return boardList;
     }
 }

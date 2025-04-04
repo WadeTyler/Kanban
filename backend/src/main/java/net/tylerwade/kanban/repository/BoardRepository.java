@@ -1,6 +1,6 @@
 package net.tylerwade.kanban.repository;
 
-import net.tylerwade.kanban.model.Board;
+import net.tylerwade.kanban.model.board.Board;
 import net.tylerwade.kanban.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
