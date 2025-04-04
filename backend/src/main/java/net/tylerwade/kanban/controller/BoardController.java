@@ -74,4 +74,14 @@ public class BoardController {
         return ResponseEntity.ok(APIResponse.success("Member removed successfully", members));
     }
 
+    @DeleteMapping("/{boardId}/members/leave")
+    public ResponseEntity<?> leaveBoard(@PathVariable String boardId, @AuthenticationPrincipal OAuth2User principal) throws NotFoundException, UnauthorizedException, BadRequestException {
+        User user = userService.getUser(principal.getAttribute("sub"));
+        Board board = boardService.getBoardById(boardId, user);
+
+        boardService.leaveBoard(board, user);
+
+        return ResponseEntity.ok(APIResponse.success("Left board successfully"));
+    }
+
 }

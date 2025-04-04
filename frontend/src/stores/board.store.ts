@@ -25,6 +25,10 @@ interface BoardStore {
   removeMemberError: string;
   resetRemoveMemberError: () => void;
   removeMember: (boardId: string, memberId: string) => Promise<User[] | null>;
+
+  isLeavingBoard: boolean;
+  leaveBoardError: string;
+  leaveBoard: (boardId: string) => Promise<boolean>;
 }
 
 const useBoardStore = create<BoardStore>((set) => ({
@@ -172,7 +176,34 @@ const useBoardStore = create<BoardStore>((set) => ({
     } finally {
       set({ isRemovingMember: false });
     }
-  }
+  },
+
+  isLeavingBoard: false,
+  leaveBoardError: '',
+  leaveBoard: async (boardId: string) => {
+    set({ isLeavingBoard: true, leaveBoardError: ''});
+    try {
+      const response = await fetch(`${API_URL}/v1/boards/${boardId}/members/leave`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include"
+      });
+
+      const apiResponse: APIResponse<null> = await response.json();
+
+      if (!response.ok || !apiResponse.success)
+        throw new Error(apiResponse.message);
+
+      return apiResponse.success;
+    } catch (e) {
+      set({ leaveBoardError: (e as Error).message || "Failed to leave board."});
+      return false;
+    } finally {
+      set({ isLeavingBoard: false });
+    }
+  },
 
 }));
 

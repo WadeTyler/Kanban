@@ -6,6 +6,7 @@
     --color-accent: #41da98;
     --color-accent-dark: #1f7951;
     --color-dark: #031e1e;
+    --color-darker: #011111;
     --color-secondary: #8a8a8a;
     --color-secondary-dark: #4a4a4a;
     --color-danger: #cb0505;
@@ -17,6 +18,7 @@
     --color-accent: #41da98;
     --color-accent-dark: #1f7951;
     --color-dark: #031e1e;
+    --color-darker: #011111;
     --color-secondary: #c0c0c0;
     --color-secondary-dark: #4a4a4a;
     --color-danger: #ef3636;
@@ -28,6 +30,7 @@
     --color-accent: var(--color-accent);
     --color-accent-dark: var(--color-accent-dark);
     --color-dark: var(--color-dark);
+    --color-darker: var(--color-darker);
     --color-secondary: var(--color-secondary);
     --color-secondary-dark: var(--color-secondary-dark);
     --color-danger: var(--color-danger);
@@ -56,7 +59,7 @@ body {
 }
 
 .hover-btn2 {
-    @apply inline-flex items-center justify-center w-full whitespace-nowrap gap-2 hover:text-accent cursor-pointer p-1 hover:bg-accent/20 rounded-md border border-transparent hover:border-accent cursor-pointer duration-200;
+    @apply inline-flex items-center justify-center w-full whitespace-nowrap gap-2 hover:text-accent cursor-pointer p-1 hover:bg-accent/20 rounded-md border border-transparent hover:border-accent duration-200;
 }
 
 .form-container {

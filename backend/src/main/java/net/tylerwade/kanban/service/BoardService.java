@@ -97,7 +97,8 @@ public class BoardService {
         }
 
         // Check if owner of board
-        if (!board.getOwner().getUserId().equals(user.getUserId())) throw new UnauthorizedException("You are not authorized to add members.");
+        if (!board.getOwner().getUserId().equals(user.getUserId()))
+            throw new UnauthorizedException("You are not authorized to add members.");
 
         // Check if user is a member
         if (!board.getMembers().contains(user)) {
@@ -133,5 +134,26 @@ public class BoardService {
         boardRepository.save(board);
 
         return board.getMembers();
+    }
+
+    public void leaveBoard(Board board, User user) throws BadRequestException {
+
+        // Check if user is a member of the board
+        if (!board.getMembers().contains(user)) {
+            throw new BadRequestException("You are not a member of this board.");
+        }
+
+        // Check if user is the owner of the board
+        if (board.getOwner().equals(user)) {
+            throw new BadRequestException("You cannot leave your own board.");
+        }
+
+        // Remove user from board members
+        List<User> members = board.getMembers();
+        members.remove(user);
+        board.setMembers(members);
+
+        // Save the board
+        boardRepository.save(board);
     }
 }
