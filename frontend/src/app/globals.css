@@ -55,6 +55,10 @@ body {
     @apply cursor-pointer duration-200 hover:bg-secondary/40 rounded-md flex items-center justify-center p-1;
 }
 
+.hover-btn2 {
+    @apply inline-flex items-center justify-center w-full whitespace-nowrap gap-2 hover:text-accent cursor-pointer p-1 hover:bg-accent/20 rounded-md border border-transparent hover:border-accent cursor-pointer duration-200;
+}
+
 .form-container {
     @apply w-full flex flex-col items-center justify-center gap-4 rounded-md border-accent p-4;
 }

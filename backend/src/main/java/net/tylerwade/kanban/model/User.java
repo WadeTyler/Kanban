@@ -27,7 +27,7 @@ public class User {
 
     private Timestamp createdAt = new Timestamp(System.currentTimeMillis());
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "owner", cascade = CascadeType.ALL)
+    @ManyToMany(fetch = FetchType.LAZY, mappedBy = "members", cascade = CascadeType.ALL)
     @JsonIgnore
     private List<Board> boards;
 

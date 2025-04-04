@@ -11,6 +11,7 @@ import Label from "@/components/Label";
 import {BoardList, CreateNewBoardList} from "@/components/BoardList";
 import {useWebSocketStore} from "@/stores/websocket.store";
 import ConnectedUsers from "@/components/ConnectedUsers";
+import BoardSettings from "@/components/BoardSettings";
 
 const Page = () => {
   // Nav
@@ -19,11 +20,19 @@ const Page = () => {
 
   // States
   const [board, setBoard] = useState<Board | null>(null);
+  const [isShowingSettings, setIsShowingSettings] = useState<boolean>(false);
 
   // Store
   const {loadBoard, isLoadingBoard, loadBoardError} = useBoardStore();
   const {user} = useAuthStore();
-  const {setBoardId, connectToBoard, disconnectFromBoard, newBoardList, resetNewBoardList, connectedUsers} = useWebSocketStore();
+  const {
+    setBoardId,
+    connectToBoard,
+    disconnectFromBoard,
+    newBoardList,
+    resetNewBoardList,
+    connectedUsers
+  } = useWebSocketStore();
 
 
   // Load board and connect to websocket
@@ -44,7 +53,7 @@ const Page = () => {
       })
     }
 
-    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+    const handleBeforeUnload = () => {
       if (boardId) {
         console.log("Page is being closed, disconnecting from board");
         disconnectFromBoard(boardId);
@@ -75,7 +84,7 @@ const Page = () => {
   if (isLoadingBoard) {
     return (
       <div className="flex items-center justify-center w-full h-screen fixed top-0 left-0 z-40">
-        <LoadingSpinner cn="size-16 text-accent" />
+        <LoadingSpinner cn="size-16 text-accent"/>
       </div>
     )
   }
@@ -92,11 +101,14 @@ const Page = () => {
               {/* Action Btns */}
               <div className="flex items-center gap-4">
 
-                <ConnectedUsers connectedUsers={connectedUsers} />
+                <ConnectedUsers connectedUsers={connectedUsers}/>
 
-                <button className="relative group h-fit">
-                  <RiSettings2Line className="hover-btn size-8" />
-                  <Label text={"Settings"} />
+                <button className="relative group h-fit" >
+                  <RiSettings2Line className="hover-btn size-8" onClick={() => setIsShowingSettings(prev => !prev)}/>
+                  {!isShowingSettings && <Label text={"Settings"}/>}
+                  {isShowingSettings && board && (
+                    <BoardSettings board={board} setBoard={setBoard} />)
+                  }
                 </button>
 
               </div>
@@ -104,14 +116,17 @@ const Page = () => {
             <hr className="border w-full border-secondary"/>
             <div className="w-full h-full flex gap-8 overflow-x-scroll overflow-y-hidden">
               {board.lists?.map((boardList) => (
-                <BoardList boardList={boardList} key={boardList.boardListId} board={board} />
+                <BoardList boardList={boardList} key={boardList.boardListId} board={board}/>
               ))}
-              <CreateNewBoardList />
+              <CreateNewBoardList/>
             </div>
 
           </div>
         )}
       </div>
+
+
+
     </AuthProvider>
   );
 };

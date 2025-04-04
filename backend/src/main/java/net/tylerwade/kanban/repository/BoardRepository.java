@@ -15,4 +15,8 @@ public interface BoardRepository extends JpaRepository<Board, String> {
     Iterable<Board> findAllByOwnerOrderByUpdatedAtDesc(User user);
 
     Optional<Board> findByBoardIdAndOwner(String boardId, User user);
+
+    Iterable<Board> findAllByMembersContainsOrderByUpdatedAtDesc(User user);
+
+    Optional<Board> findByBoardIdAndMembersContains(String boardId, User user);
 }

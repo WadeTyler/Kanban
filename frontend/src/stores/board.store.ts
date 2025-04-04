@@ -2,6 +2,7 @@ import {create} from 'zustand';
 import {Board, CreateBoardRequest} from "@/types/board.types";
 import {API_URL} from "@/environment";
 import {APIResponse} from "@/types/APIResponse.types";
+import {User} from "@/types/auth.types";
 
 interface BoardStore {
   isLoadingBoard: boolean;
@@ -15,6 +16,15 @@ interface BoardStore {
   isCreatingBoard: boolean;
   createBoardError: string;
   createBoard: (createBoardRequest: CreateBoardRequest) => Promise<Board | null>
+
+  isAddingMember: boolean;
+  addMemberError: string;
+  addMember: (boardId: string, email: string) => Promise<User[] | null>;
+
+  isRemovingMember: boolean;
+  removeMemberError: string;
+  resetRemoveMemberError: () => void;
+  removeMember: (boardId: string, memberId: string) => Promise<User[] | null>;
 }
 
 const useBoardStore = create<BoardStore>((set) => ({
@@ -103,6 +113,64 @@ const useBoardStore = create<BoardStore>((set) => ({
       return null;
     } finally {
       set({isCreatingBoard: false});
+    }
+  },
+
+  isAddingMember: false,
+  addMemberError: '',
+  addMember: async (boardId: string, email: string) => {
+    set({ isAddingMember: true, addMemberError: ''});
+    try {
+      const response = await fetch(`${API_URL}/v1/boards/${boardId}/members`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({email})
+      });
+
+      const apiResponse: APIResponse<User[]> = await response.json();
+
+      if (!response.ok || !apiResponse.success || !apiResponse.data)
+        throw new Error(apiResponse.message);
+
+      return apiResponse.data;
+    } catch (e) {
+      set({ addMemberError: (e as Error).message || "Failed to add member."});
+      return null;
+    } finally {
+      set({ isAddingMember: false });
+    }
+  },
+
+  isRemovingMember: false,
+  removeMemberError: '',
+  resetRemoveMemberError: () => {
+    set({ removeMemberError: '' });
+  },
+  removeMember: async (boardId: string, memberId: string) => {
+    set({ isRemovingMember: true, removeMemberError: ''});
+    try {
+      const response = await fetch(`${API_URL}/v1/boards/${boardId}/members/${memberId}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+      });
+
+      const apiResponse: APIResponse<User[]> = await response.json();
+
+      if (!response.ok || !apiResponse.success || !apiResponse.data)
+        throw new Error(apiResponse.message);
+
+      return apiResponse.data;
+    } catch (e) {
+      set({ removeMemberError: (e as Error).message || "Failed to remove member."});
+      return null;
+    } finally {
+      set({ isRemovingMember: false });
     }
   }
 
