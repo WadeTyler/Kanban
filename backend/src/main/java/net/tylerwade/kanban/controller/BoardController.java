@@ -84,4 +84,13 @@ public class BoardController {
         return ResponseEntity.ok(APIResponse.success("Left board successfully"));
     }
 
+    @PostMapping("/{boardId}/members/{memberId}/promote")
+    public ResponseEntity<?> promoteUserToOwner(@PathVariable String boardId, @PathVariable String memberId, @AuthenticationPrincipal OAuth2User principal) throws NotFoundException, UnauthorizedException {
+        User user = userService.getUser(principal.getAttribute("sub"));
+        Board board = boardService.getBoardById(boardId, user);
+
+        Board newBoard = boardService.promoteUserToOwner(board, user, memberId);
+
+        return ResponseEntity.ok(APIResponse.success("User promoted to owner successfully", newBoard));
+    }
 }

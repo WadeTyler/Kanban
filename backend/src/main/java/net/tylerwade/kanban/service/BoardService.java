@@ -156,4 +156,28 @@ public class BoardService {
         // Save the board
         boardRepository.save(board);
     }
+
+    public Board promoteUserToOwner(Board board, User user, String memberId) throws UnauthorizedException, NotFoundException {
+
+        // Check if owner of the board
+        if (!board.getOwner().equals(user)) {
+            throw new UnauthorizedException("You are not authorized to promote members.");
+        }
+
+        // Check if self
+        if (user.getUserId().equals(memberId)) {
+            throw new UnauthorizedException("You cannot promote yourself.");
+        }
+
+        // Check if target member is a member of the board
+        User targetMember = board.getMembers().stream()
+                .filter(member -> member.getUserId().equals(memberId))
+                .findFirst()
+                .orElseThrow(() -> new NotFoundException("Target user is not a member of this board."));
+
+        // Promote target member to owner
+        board.setOwner(targetMember);
+        boardRepository.save(board);
+        return board;
+    }
 }

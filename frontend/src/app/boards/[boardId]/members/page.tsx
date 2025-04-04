@@ -12,6 +12,7 @@ import {
 } from "@remixicon/react";
 import Label from "@/components/Label";
 import LoadingSpinner from "@/components/LoadingSpinner";
+import ConfirmPanel from "@/components/ConfirmPanel";
 
 const Page = () => {
 
@@ -24,6 +25,7 @@ const Page = () => {
   const [isBoardOwner, setIsBoardOwner] = useState(false);
   const [newMemberEmail, setNewMemberEmail] = useState("");
 
+
   // Store
   const {
     loadBoard,
@@ -35,12 +37,15 @@ const Page = () => {
     removeMember,
     isRemovingMember,
     removeMemberError,
-    resetRemoveMemberError
+    resetBoardErrors,
+    isPromotingMember,
+    promoteMember
   } = useBoardStore();
   const {user} = useAuthStore();
 
   // Load board
   useEffect(() => {
+    resetBoardErrors();
     if (boardId && user) {
       setBoard(null);
       loadBoard(boardId).then(board => {
@@ -54,7 +59,7 @@ const Page = () => {
         setIsBoardOwner(false);
       })
     }
-    resetRemoveMemberError();
+
   }, [user, boardId]);
 
   const handleAddMember = async (e: FormEvent) => {
@@ -85,6 +90,18 @@ const Page = () => {
             ...board,
             members: members
           });
+        }
+      })
+  }
+
+  const handlePromoteMember = async (memberId: string) => {
+    if (isPromotingMember || !board || !user || !isBoardOwner) return;
+    // Promote Member
+    promoteMember(board.boardId, memberId)
+      .then((board) => {
+        if (board) {
+          setBoard(board);
+          setIsBoardOwner(false);
         }
       })
   }
@@ -145,8 +162,8 @@ const Page = () => {
 
 
               {board.members.map((member) => (
-                <UserCard member={member} isBoardOwner={isBoardOwner} boardOwner={board.owner}
-                          handleRemoveMember={handleRemoveMember} key={member.userId}/>
+                <UserCard key={member.userId} member={member} isBoardOwner={isBoardOwner} boardOwner={board.owner}
+                          handleRemoveMember={handleRemoveMember} handlePromoteMember={handlePromoteMember} />
               ))}
 
 
@@ -155,7 +172,8 @@ const Page = () => {
         </div>
 
         {removeMemberError && (
-          <span className="fixed bottom-4 left-1/2 -translate-x-1/2 p-2 bg-danger text-white rounded-md z-40">{removeMemberError}</span>
+          <span
+            className="fixed bottom-4 left-1/2 -translate-x-1/2 p-2 bg-danger text-white rounded-md z-40">{removeMemberError}</span>
         )}
       </div>
     </AuthProvider>
@@ -164,16 +182,24 @@ const Page = () => {
 
 export default Page;
 
-const UserCard = ({member, isBoardOwner, boardOwner, handleRemoveMember}: {
+const UserCard = ({member, isBoardOwner, boardOwner, handleRemoveMember, handlePromoteMember}: {
   member: User;
   isBoardOwner: boolean;
   boardOwner: User;
-  handleRemoveMember: (memberId: string) => void;
+  handleRemoveMember: (memberId: string) => Promise<void>;
+  handlePromoteMember: (memberId: string) => Promise<void>;
 }) => {
 
   const [isHovering, setIsHovering] = useState(false);
+  const [isConfirmingPromoteMember, setIsConfirmingPromoteMember] = useState(false);
 
-  const {isRemovingMember} = useBoardStore();
+  const {isRemovingMember, isPromotingMember, promoteMemberError} = useBoardStore();
+
+  const confirmPromoteMember = async () => {
+    await handlePromoteMember(member.userId).then(() => {
+      setIsConfirmingPromoteMember(false);
+    })
+  }
 
   return (
     <div
@@ -190,25 +216,40 @@ const UserCard = ({member, isBoardOwner, boardOwner, handleRemoveMember}: {
       </div>
 
       {isBoardOwner && isHovering && member.userId !== boardOwner.userId && (
-        <button className={`ml-auto text-danger cursor-pointer relative hover-btn group`} disabled={isRemovingMember}
-                onClick={() => handleRemoveMember(member.userId)}>
-          {!isRemovingMember
-            ? <>
-              <RiDeleteBack2Line/>
-              <Label text="Remove Board Member"/>
-            </>
-            : <>
-              <LoadingSpinner/>
-              <Label text="Removing Member"/>
-            </>
-          }
-        </button>
+        <div className="flex items-center gap-2 ml-auto">
+
+          <button className={`text-accent cursor-pointer relative hover-btn group`} onClick={() => setIsConfirmingPromoteMember(true)}>
+            <RiShieldUserLine />
+            <Label text={"Promote to Owner"}/>
+          </button>
+
+
+          <button className={`text-danger cursor-pointer relative hover-btn group`} disabled={isRemovingMember}
+                  onClick={() => handleRemoveMember(member.userId)}>
+            {!isRemovingMember
+              ? <>
+                <RiDeleteBack2Line/>
+                <Label text="Remove Board Member"/>
+              </>
+              : <>
+                <LoadingSpinner/>
+                <Label text="Removing Member"/>
+              </>
+            }
+          </button>
+
+
+        </div>
       )}
       {member.userId === boardOwner.userId && (
         <div className={`ml-auto text-accent relative group`}>
           <RiShieldUserLine/>
           <Label text="Board Owner"/>
         </div>
+      )}
+
+      {isConfirmingPromoteMember && (
+        <ConfirmPanel headerText={`You are about to promote someone to the owner of this board.`} bodyText={`You are about to promote '${member.name}' to the owner of this board. This action is irreversible. Are you sure you want to do this?`} confirmFunction={confirmPromoteMember} cancelFunction={() => setIsConfirmingPromoteMember(false)} isPending={isPromotingMember} errorMsg={promoteMemberError} />
       )}
     </div>
   )

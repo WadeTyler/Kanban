@@ -29,6 +29,12 @@ interface BoardStore {
   isLeavingBoard: boolean;
   leaveBoardError: string;
   leaveBoard: (boardId: string) => Promise<boolean>;
+
+  isPromotingMember: boolean;
+  promoteMemberError: string;
+  promoteMember: (boardId: string, memberId: string) => Promise<Board | null>;
+
+  resetBoardErrors: () => void;
 }
 
 const useBoardStore = create<BoardStore>((set) => ({
@@ -205,6 +211,37 @@ const useBoardStore = create<BoardStore>((set) => ({
     }
   },
 
+  isPromotingMember: false,
+  promoteMemberError: '',
+  promoteMember: async (boardId: string, memberId: string) => {
+    set({ isPromotingMember: true, promoteMemberError: ''});
+    try {
+      const response = await fetch(`${API_URL}/v1/boards/${boardId}/members/${memberId}/promote`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include"
+      });
+
+      const apiResponse: APIResponse<Board> = await response.json();
+
+      if (!response.ok || !apiResponse.success || !apiResponse.data)
+        throw new Error(apiResponse.message);
+
+      return apiResponse.data;
+    } catch (e) {
+      set({ promoteMemberError: (e as Error).message || "Failed to promote member."});
+      return null;
+    } finally {
+      set({ isPromotingMember: false });
+    }
+  },
+
+  // Reset all errors
+  resetBoardErrors: () => {
+    set({ leaveBoardError: "", removeMemberError: "", promoteMemberError: "", createBoardError: "", loadBoardError: "", loadBoardsError: "", addMemberError: "" });
+  }
 }));
 
 export default useBoardStore;
