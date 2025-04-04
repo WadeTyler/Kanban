@@ -27,7 +27,7 @@ const Page = () => {
 
   return (
     <AuthProvider authRequired={true}>
-      <div className="w-full min-h-screen flex flex-col items-center">
+      <div className="w-full page-padding flex flex-col items-center">
 
         {/* Container */}
         <div className="w-full max-w-[55rem] flex flex-col items-center gap-4">

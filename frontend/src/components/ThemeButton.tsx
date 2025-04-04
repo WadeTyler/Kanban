@@ -1,6 +1,7 @@
 'use client';
 import React, {useEffect, useState} from 'react';
 import {RiMoonClearFill, RiSunFill} from "@remixicon/react";
+import Label from "@/components/Label";
 
 const ThemeButton = () => {
 
@@ -28,12 +29,15 @@ const ThemeButton = () => {
   }, []);
 
   return (
-    <button onClick={toggleTheme} className="hover-btn">
-      {isDarkMode
-        ? <RiSunFill />
-        : <RiMoonClearFill />
-      }
-    </button>
+    <div className="relative group">
+      <button onClick={toggleTheme} className="hover-btn">
+        {isDarkMode
+          ? <RiSunFill />
+          : <RiMoonClearFill />
+        }
+      </button>
+      <Label text={"Toggle Theme"} />
+    </div>
   );
 };
 

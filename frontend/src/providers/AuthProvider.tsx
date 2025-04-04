@@ -23,12 +23,12 @@ const AuthProvider = ({children, authRequired = true, redirectTo = LOGIN_URL}: A
     if (!user) {
       loadUser();
     }
-  }, [loadUser]);
+  }, []);
 
   if (isLoadingUser && authRequired) {
     return (
       <div className="flex items-center justify-center w-full h-screen fixed top-0 left-0 z-40">
-        <LoadingSpinner cn="size-16 text-accent" />
+        <LoadingSpinner cn="size-16 text-accent"/>
       </div>
     )
   }

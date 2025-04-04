@@ -3,6 +3,7 @@ package net.tylerwade.kanban.controller;
 import net.tylerwade.kanban.dto.APIResponse;
 import net.tylerwade.kanban.dto.CreateBoardRequest;
 import net.tylerwade.kanban.exception.BadRequestException;
+import net.tylerwade.kanban.exception.NotFoundException;
 import net.tylerwade.kanban.exception.UnauthorizedException;
 import net.tylerwade.kanban.model.Board;
 import net.tylerwade.kanban.model.User;
@@ -31,7 +32,15 @@ public class BoardController {
     public ResponseEntity<?> getAllUserBoards(@AuthenticationPrincipal OAuth2User principal) throws UnauthorizedException {
         User user = userService.getUser(principal.getAttribute("sub"));
         Iterable<Board> boards = boardService.getAllUserBoards(user);
+        boards.forEach((board) -> board.setLists(null));
         return ResponseEntity.ok(APIResponse.success("Boards retrieved successfully", boards));
+    }
+
+    @GetMapping("/{boardId}")
+    public ResponseEntity<?> getBoardById(@PathVariable String boardId, @AuthenticationPrincipal OAuth2User principal) throws UnauthorizedException, NotFoundException {
+        User user = userService.getUser(principal.getAttribute("sub"));
+        Board board = boardService.getBoardById(boardId, user);
+        return ResponseEntity.ok(APIResponse.success("Board retrieved successfully", board));
     }
 
     @PostMapping("/create")

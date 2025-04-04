@@ -36,12 +36,12 @@ body {
     font-family: Arial, Helvetica, sans-serif;
 }
 
-body {
+.page-padding {
     @apply lg:p-16 lg:pt-28 md:p-8 md:pt-20 p-4 pt-16;
 }
 
 .submit-btn {
-    @apply inline-flex items-center justify-center px-4 py-1 gap-2 border-foreground border cursor-pointer rounded-md hover:border-accent hover:text-accent duration-200 text-center;
+    @apply inline-flex items-center justify-center px-4 py-1 gap-2 border-foreground border cursor-pointer rounded-md hover:border-accent hover:text-accent duration-200 text-center hover:bg-accent/20;
 }
 
 .submit-btn2 {

@@ -5,8 +5,12 @@ import {CreateBoardRequest} from "@/types/board.types";
 import {RiAddLine} from "@remixicon/react";
 import useBoardStore from "@/stores/board.store";
 import LoadingSpinner from "@/components/LoadingSpinner";
+import {useRouter} from "next/navigation";
 
 const Page = () => {
+
+  // Navigation
+  const router = useRouter();
 
   // States
   const [createBoardRequest, setCreateBoardRequest] = useState<CreateBoardRequest>({
@@ -22,12 +26,16 @@ const Page = () => {
       return;
     }
 
-    await createBoard(createBoardRequest);
+    await createBoard(createBoardRequest).then((board) => {
+      if (board) {
+        router.push(`/boards/${board.boardId}`);
+      }
+    });
   }
 
   return (
     <AuthProvider authRequired={true}>
-      <div className="w-full min-h-screen flex flex-col items-center">
+      <div className="w-full page-padding flex flex-col items-center">
 
         {/* Container */}
         <div className="w-full max-w-[55rem] flex flex-col items-center gap-4">

@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.sql.Timestamp;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -28,6 +29,9 @@ public class Board {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "owner_id")
     private User owner;
+
+    @OneToMany(mappedBy = "board", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<BoardList> lists;
 
     public Board(String name, String description, User owner) {
         this.name = name;

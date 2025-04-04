@@ -5,13 +5,14 @@ import {RiHome3Line, RiKanbanView, RiLoginBoxLine} from "@remixicon/react";
 import Link from "next/link";
 import {LOGIN_URL} from "@/environment";
 import ThemeButton from "@/components/ThemeButton";
+import Label from "@/components/Label";
 
 const Navbar = () => {
 
   const {user} = useAuthStore();
 
   return (
-    <div className="w-full h-12 px-4 flex items-center justify-between border-b border-b-secondary fixed z-50 top-0 left-0">
+    <div className="w-full h-12 px-4 flex items-center justify-between border-b border-b-secondary fixed z-50 top-0 left-0 bg-background">
       {/* Left Side */}
       <div className="flex items-center gap-4 text-foreground">
         <Link href="/">
@@ -46,8 +47,9 @@ const Navbar = () => {
         {user && (
           <div>
             {/* Profile Pic */}
-            <Link href="/profile" className="flex items-center gap-4 hover-btn">
+            <Link href="/profile" className="flex items-center gap-4 hover-btn relative group">
               <img src={user.profilePicture} alt="User Profile Picture" className="w-8 h-8 rounded-full"/>
+              <Label text="Profile" />
             </Link>
           </div>
         )}

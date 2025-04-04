@@ -2,6 +2,7 @@ package net.tylerwade.kanban.service;
 
 import net.tylerwade.kanban.dto.CreateBoardRequest;
 import net.tylerwade.kanban.exception.BadRequestException;
+import net.tylerwade.kanban.exception.NotFoundException;
 import net.tylerwade.kanban.model.Board;
 import net.tylerwade.kanban.model.User;
 import net.tylerwade.kanban.repository.BoardRepository;
@@ -43,5 +44,10 @@ public class BoardService {
         boardRepository.save(board);
 
         return board;
+    }
+
+    public Board getBoardById(String boardId, User user) throws NotFoundException {
+        return boardRepository.findByBoardIdAndOwner(boardId, user).orElseThrow(() -> new NotFoundException("Board not found."));
+
     }
 }

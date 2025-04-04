@@ -1,9 +1,13 @@
-import { create } from 'zustand';
+import {create} from 'zustand';
 import {Board, CreateBoardRequest} from "@/types/board.types";
 import {API_URL} from "@/environment";
 import {APIResponse} from "@/types/APIResponse.types";
 
 interface BoardStore {
+  isLoadingBoard: boolean;
+  loadBoardError: string;
+  loadBoard: (boardId: string) => Promise<Board | null>;
+
   isLoadingBoards: boolean;
   loadBoardsError: string;
   loadBoards: () => Promise<Board[] | null>;
@@ -15,10 +19,38 @@ interface BoardStore {
 
 const useBoardStore = create<BoardStore>((set) => ({
 
+  isLoadingBoard: false,
+  loadBoardError: "",
+  loadBoard: async (boardId: string) => {
+    set({isLoadingBoard: true, loadBoardError: ""});
+    try {
+      const response = await fetch(`${API_URL}/v1/boards/${boardId}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include"
+      });
+
+      const apiResponse: APIResponse<Board> = await response.json();
+
+      if (!response.ok || !apiResponse.success) {
+        throw new Error(apiResponse.message);
+      }
+
+      return apiResponse.data;
+    } catch (e) {
+      set({loadBoardError: (e as Error).message || "Failed to load board. Try again later."});
+      return null;
+    } finally {
+      set({isLoadingBoard: false});
+    }
+  },
+
   isLoadingBoards: false,
   loadBoardsError: '',
   loadBoards: async () => {
-    set({ isLoadingBoards: true, loadBoardsError: '' });
+    set({isLoadingBoards: true, loadBoardsError: ''});
     try {
       const response = await fetch(`${API_URL}/v1/boards`, {
         method: "GET",
@@ -36,17 +68,17 @@ const useBoardStore = create<BoardStore>((set) => ({
 
       return apiResponse.data;
     } catch (e) {
-      set({ loadBoardsError: (e as Error).message || "Failed to load boards. Try again later." });
+      set({loadBoardsError: (e as Error).message || "Failed to load boards. Try again later."});
       return [];
     } finally {
-      set({ isLoadingBoards: false });
+      set({isLoadingBoards: false});
     }
   },
 
   isCreatingBoard: false,
   createBoardError: '',
   createBoard: async (createBoardRequest: CreateBoardRequest) => {
-    set({ isCreatingBoard: true, createBoardError: '' });
+    set({isCreatingBoard: true, createBoardError: ''});
     try {
       const response = await fetch(`${API_URL}/v1/boards/create`, {
         method: "POST",
@@ -67,10 +99,10 @@ const useBoardStore = create<BoardStore>((set) => ({
 
       return apiResponse.data;
     } catch (e) {
-      set({ createBoardError: (e as Error).message || "Failed to create board." });
+      set({createBoardError: (e as Error).message || "Failed to create board."});
       return null;
     } finally {
-      set({ isCreatingBoard: false });
+      set({isCreatingBoard: false});
     }
   }
 
