@@ -2,6 +2,7 @@ import {create} from 'zustand';
 import {Client} from "@stomp/stompjs";
 import {BROKER_URL} from "@/environment";
 import {BoardList} from "@/types/board.types";
+import {User} from "@/types/auth.types";
 
 interface WebSocketStore {
   boardId: string | null;
@@ -10,6 +11,7 @@ interface WebSocketStore {
   client: Client;
   connectToBoard: (boardId: string) => void;
   disconnectFromBoard: (boardId: string) => void;
+  connectedUsers: User[];
 
   // Handling new Boards
   isCreatingNewBoardList: boolean;
@@ -35,11 +37,22 @@ export const useWebSocketStore = create<WebSocketStore>((set, get) => ({
     maxReconnectDelay: 15000
   }),
 
+  connectedUsers: [],
+
   connectToBoard: (boardId: string) => {
     const client = get().client;
 
     client.onConnect = function (frame) {
       announceConnected(client, boardId);
+
+      // Subscribe to connected users
+      client.subscribe(`/topic/boards/${boardId}/connectedUsers`, (message) => {
+        const connectedUsers = JSON.parse(message.body);
+        if (connectedUsers) {
+          console.log("Connected users: ", connectedUsers);
+          set({ connectedUsers: connectedUsers });
+        }
+      })
 
       // Subscribe to receiving new board lists
       client.subscribe(`/topic/boards/${boardId}/lists/new`, (message) => {
@@ -65,6 +78,8 @@ export const useWebSocketStore = create<WebSocketStore>((set, get) => ({
       client.publish({
         destination: `/app/boards/${boardId}/disconnect`
       });
+
+      set({ connectedUsers: []});
 
       // Then deactivate
       client.deactivate();

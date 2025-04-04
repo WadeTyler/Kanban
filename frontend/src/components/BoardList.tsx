@@ -2,12 +2,11 @@
 import React, {FormEvent, useState} from 'react';
 import {RiAddLine} from "@remixicon/react";
 import {useWebSocketStore} from "@/stores/websocket.store";
-import {create} from "zustand";
-import {Board, BoardList} from "@/types/board.types";
+import {Board, BoardList as BoardListType} from "@/types/board.types";
 import LoadingSpinner from "@/components/LoadingSpinner";
 
 export const BoardList = ({boardList, board}: {
-  boardList: BoardList,
+  boardList: BoardListType,
   board: Board
 }) => {
   return (

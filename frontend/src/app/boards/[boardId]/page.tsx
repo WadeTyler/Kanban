@@ -10,6 +10,7 @@ import {RiSettings2Line} from "@remixicon/react";
 import Label from "@/components/Label";
 import {BoardList, CreateNewBoardList} from "@/components/BoardList";
 import {useWebSocketStore} from "@/stores/websocket.store";
+import ConnectedUsers from "@/components/ConnectedUsers";
 
 const Page = () => {
   // Nav
@@ -22,7 +23,7 @@ const Page = () => {
   // Store
   const {loadBoard, isLoadingBoard, loadBoardError} = useBoardStore();
   const {user} = useAuthStore();
-  const {setBoardId, connectToBoard, disconnectFromBoard, newBoardList, resetNewBoardList} = useWebSocketStore();
+  const {setBoardId, connectToBoard, disconnectFromBoard, newBoardList, resetNewBoardList, connectedUsers} = useWebSocketStore();
 
 
   // Load board and connect to websocket
@@ -90,6 +91,8 @@ const Page = () => {
               <h1 className="text-xl font-semibold text-accent">{board.name}</h1>
               {/* Action Btns */}
               <div className="flex items-center gap-4">
+
+                <ConnectedUsers connectedUsers={connectedUsers} />
 
                 <button className="relative group h-fit">
                   <RiSettings2Line className="hover-btn size-8" />
