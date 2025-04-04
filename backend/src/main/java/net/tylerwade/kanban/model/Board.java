@@ -30,7 +30,7 @@ public class Board {
     @JoinColumn(name = "owner_id")
     private User owner;
 
-    @OneToMany(mappedBy = "board", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "board", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private List<BoardList> lists;
 
     public Board(String name, String description, User owner) {

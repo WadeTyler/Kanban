@@ -18,31 +18,31 @@ import org.springframework.stereotype.Controller;
 import java.security.Principal;
 
 @Controller
-public class BoardWSController {
-
+public class BoardListWSController {
     private final SimpMessagingTemplate messagingTemplate;
-
     private final UserService userService;
     private final BoardService boardService;
 
     @Autowired
-    public BoardWSController(SimpMessagingTemplate messagingTemplate, UserService userService, BoardService boardService) {
+    public BoardListWSController(SimpMessagingTemplate messagingTemplate, UserService userService, BoardService boardService) {
         this.messagingTemplate = messagingTemplate;
         this.userService = userService;
         this.boardService = boardService;
     }
 
-    @MessageMapping("/boards/{boardId}/connect")
-    public void connectedToBoard(@DestinationVariable String boardId, Principal principal) throws UnauthorizedException {
-        System.out.println("Here");
-        User user = userService.getUser(principal.getName());
-        System.out.println("User " + user.getName() + " connected to board " + boardId);
-    }
+    @MessageMapping("/boards/{boardId}/lists/create")
+    @SendTo()
+    public void createBoardList(@DestinationVariable String boardId, Principal principal, @Payload CreateBoardListRequest createBoardListRequest) throws UnauthorizedException, NotFoundException {
 
-    @MessageMapping("/boards/{boardId}/disconnect")
-    public void disconnectFromBoard(@DestinationVariable String boardId, Principal principal) throws UnauthorizedException {
         User user = userService.getUser(principal.getName());
-        System.out.println("User " + user.getName() + " disconnected from board " + boardId);
-    }
+        if (createBoardListRequest.getName() == null || createBoardListRequest.getName().isEmpty()) {
+            // TODO: Handle empty name
+            return;
+        }
 
+        System.out.println("User " + user.getName() + " creating list " + createBoardListRequest.getName() + " on board " + boardId);
+        BoardList boardList = boardService.createBoardList(boardId, createBoardListRequest.getName(), user);
+
+        this.messagingTemplate.convertAndSend("/topic/boards/" + boardId + "/lists/new", boardList);
+    }
 }

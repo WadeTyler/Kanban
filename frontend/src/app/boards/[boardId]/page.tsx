@@ -8,51 +8,68 @@ import AuthProvider from "@/providers/AuthProvider";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import {RiSettings2Line} from "@remixicon/react";
 import Label from "@/components/Label";
-import {Client} from "@stomp/stompjs";
-import {BROKER_URL} from "@/environment";
-import {CreateNewBoardList} from "@/components/BoardList";
+import {BoardList, CreateNewBoardList} from "@/components/BoardList";
+import {useWebSocketStore} from "@/stores/websocket.store";
 
 const Page = () => {
   // Nav
   const params = useParams<{ boardId: string; }>()
   const boardId = params.boardId;
 
+  // States
   const [board, setBoard] = useState<Board | null>(null);
 
   // Store
   const {loadBoard, isLoadingBoard, loadBoardError} = useBoardStore();
   const {user} = useAuthStore();
+  const {setBoardId, connectToBoard, disconnectFromBoard, newBoardList, resetNewBoardList} = useWebSocketStore();
 
-  const client = new Client({
-    brokerURL: BROKER_URL,
-    onConnect: () => {
-      client.subscribe(`/topic/boards/${boardId}`, (message) => {
-        console.log("Received message: ", message);
-      });
-      client.publish({
-        destination: `/app/boards/${boardId}/connected`
-      });
-    }
-  })
 
+  // Load board and connect to websocket
   useEffect(() => {
     if (boardId && user) {
+      disconnectFromBoard(boardId);
       loadBoard(boardId).then(board => {
         if (board) {
           setBoard(board);
+          setBoardId(boardId);
           console.log(board);
-          client.activate();
+          connectToBoard(board.boardId);
         }
       }).catch(() => {
+        setBoardId(null);
         setBoard(null);
-        client.deactivate();
+        disconnectFromBoard(boardId);
       })
     }
 
+    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+      if (boardId) {
+        console.log("Page is being closed, disconnecting from board");
+        disconnectFromBoard(boardId);
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
     return () => {
-      client.deactivate();
+      setBoardId(null);
+      disconnectFromBoard(boardId);
+      window.removeEventListener('beforeunload', handleBeforeUnload);
     }
-  }, [boardId, loadBoard, user]);
+  }, [boardId, user]);
+
+  // Handle newBoardList changes
+  useEffect(() => {
+    if (newBoardList && board) {
+      console.log("Updating board");
+      const newBoard = board;
+      newBoard.lists = board.lists ? [...board.lists, newBoardList] : [newBoardList];
+      setBoard(newBoard);
+      console.log("New board list added: ", newBoard);
+      resetNewBoardList();
+    }
+  }, [newBoardList]);
 
   if (isLoadingBoard) {
     return (
@@ -82,8 +99,10 @@ const Page = () => {
               </div>
             </header>
             <hr className="border w-full border-secondary"/>
-            <div className="w-full flex gap-8">
-
+            <div className="w-full h-full flex gap-8 overflow-x-scroll overflow-y-hidden">
+              {board.lists?.map((boardList) => (
+                <BoardList boardList={boardList} key={boardList.boardListId} board={board} />
+              ))}
               <CreateNewBoardList />
             </div>
 
