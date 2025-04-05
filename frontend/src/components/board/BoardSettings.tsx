@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
 import {Board} from "@/types/board.types";
-import {RiLogoutBoxLine, RiUserLine} from "@remixicon/react";
+import {RiLogoutBoxLine, RiTimelineView, RiUserLine} from "@remixicon/react";
 import Link from "next/link";
 import useBoardStore from "@/stores/board.store";
 import {useRouter} from "next/navigation";
@@ -8,8 +8,9 @@ import LoadingSpinner from "@/components/LoadingSpinner";
 import useAuthStore from "@/stores/auth.store";
 import ConfirmPanel from "@/components/ConfirmPanel";
 
-const BoardSettings = ({board}: {
+const BoardSettings = ({board, editStatusTypes}: {
   board: Board;
+  editStatusTypes: () => void;
 }) => {
 
   // Navigation
@@ -40,7 +41,8 @@ const BoardSettings = ({board}: {
   return (
     <div
       className="absolute bg-secondary-dark w-flit h-fit right-0 top-full mt-2 rounded-md shadow-xl text-white p-4 duration-200 border border-transparent hover:border-accent flex flex-col gap-2">
-      <Link href={`/boards/${board.boardId}/members`} className="hover-btn2"><RiUserLine/>Members</Link>
+      <Link href={`/boards/${board.boardId}/members`} className="hover-btn2 justify-start!"><RiUserLine/>Members</Link>
+      <button className="hover-btn2 justify-start!" onClick={editStatusTypes}><RiTimelineView/>Status Types</button>
 
       <hr className="border border-secondary"/>
 

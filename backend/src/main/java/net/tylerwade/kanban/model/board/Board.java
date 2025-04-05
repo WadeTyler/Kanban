@@ -42,6 +42,9 @@ public class Board {
     )
     private List<User> members;
 
+    @OneToMany(mappedBy = "board", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<BoardStatusType> statusTypes;
+
     public Board(String name, String description, User owner) {
         this.name = name;
         this.description = description;

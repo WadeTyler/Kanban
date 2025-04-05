@@ -1,7 +1,7 @@
 import {create} from 'zustand';
 import {Client} from "@stomp/stompjs";
 import {BROKER_URL} from "@/environment";
-import {BoardList, UpdateListItemRequest} from "@/types/board.types";
+import {Board, BoardList, CreateUpdateStatusTypeRequest, UpdateListItemRequest} from "@/types/board.types";
 import {User} from "@/types/auth.types";
 
 interface WebSocketStore {
@@ -12,6 +12,14 @@ interface WebSocketStore {
   connectToBoard: (boardId: string) => void;
   disconnectFromBoard: (boardId: string) => void;
   connectedUsers: User[];
+
+  // Handling updating board
+  updatedBoard: Board | null;
+  resetUpdatedBoard: () => void;
+  isUpdatingBoard: boolean;
+  createStatusType: (createStatusTypeRequest: CreateUpdateStatusTypeRequest) => Promise<void>;
+  deleteStatusType: (statusTypeId: number) => Promise<void>;
+  updateStatusType: (statusTypeId: number, updateStatusTypeRequest: CreateUpdateStatusTypeRequest) => Promise<void>;
 
   // Handling new Board lists
   isCreatingNewBoardList: boolean;
@@ -62,6 +70,19 @@ export const useWebSocketStore = create<WebSocketStore>((set, get) => ({
         }
       })
 
+      // Handle updated boards
+      client.subscribe(`/topic/boards/${boardId}/updated`, (message) => {
+        const updatedBoard: Board = JSON.parse(message.body);
+        if (updatedBoard) {
+          console.log("Updated board received: ", updatedBoard);
+          set({ updatedBoard: updatedBoard });
+        }
+
+        if (get().isUpdatingBoard) {
+          set({ isUpdatingBoard: false });
+        }
+      })
+
       // Subscribe to receiving new board lists
       client.subscribe(`/topic/boards/${boardId}/lists/new`, (message) => {
         const newBoardList: BoardList = JSON.parse(message.body);
@@ -106,6 +127,55 @@ export const useWebSocketStore = create<WebSocketStore>((set, get) => ({
       // Then deactivate
       client.deactivate();
     }
+  },
+
+  ///////////////////////////// HANDLING UPDATING BOARD /////////////////////////////
+
+  updatedBoard: null,
+  resetUpdatedBoard: () => {
+    set({ updatedBoard: null });
+  },
+  isUpdatingBoard: false,
+
+  // Create a new status type
+  createStatusType: async (createStatusTypeRequest: CreateUpdateStatusTypeRequest) => {
+    const boardId = get().boardId;
+    if (!boardId || get().isUpdatingBoard) return;
+
+    set({ isUpdatingBoard: true });
+
+    const client = get().client;
+
+    client.publish({
+      destination: `/app/boards/${boardId}/status-types/create`,
+      body: JSON.stringify(createStatusTypeRequest)
+    });
+  },
+
+  // Delete a status type
+  deleteStatusType: async (statusTypeId: number) => {
+    const boardId = get().boardId;
+    if (!boardId || get().isUpdatingBoard) return;
+
+    set({ isUpdatingBoard: true });
+
+    const client = get().client;
+    client.publish({
+      destination: `/app/boards/${boardId}/status-types/${statusTypeId}/delete`
+    })
+  },
+
+  updateStatusType: async (statusTypeId: number, updateStatusTypeRequest: CreateUpdateStatusTypeRequest) => {
+    const boardId = get().boardId;
+    if (!boardId || get().isUpdatingBoard) return;
+
+    set({ isUpdatingBoard: true });
+
+    const client = get().client;
+    client.publish({
+      destination: `/app/boards/${boardId}/status-types/${statusTypeId}/update`,
+      body: JSON.stringify(updateStatusTypeRequest)
+    });
   },
 
   ///////////////////////////// NEW BOARD LISTS /////////////////////////////

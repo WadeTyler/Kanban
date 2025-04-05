@@ -10,6 +10,19 @@ export type Board = {
   owner: User;
   members: User[];
   lists?: BoardList[];
+  statusTypes: StatusType[];
+}
+
+export type StatusType = {
+  id: number;
+  boardId: string;
+  status: string;
+  color: string;
+}
+
+export type CreateUpdateStatusTypeRequest = {
+  status: string;
+  color: string;
 }
 
 export type BoardList = {
@@ -26,7 +39,7 @@ export type ListItem = {
   title: string;
   description: string | null;
   dueDate: string | null;
-  status: string | null;
+  status: StatusType | null;
   assignedTo: User | null;
   color: string | null;
 }
@@ -40,7 +53,7 @@ export type UpdateListItemRequest = {
   title: string;
   description: string | null;
   dueDate: string | null;
-  status: string | null;
+  status: StatusType | null;
   assignedTo: User | null;
   position: number;
   color: string | null;

@@ -63,7 +63,7 @@ body {
 }
 
 .hover-btn2 {
-    @apply inline-flex items-center justify-center w-full whitespace-nowrap gap-2 hover:text-accent cursor-pointer p-1 hover:bg-accent/20 rounded-md border border-transparent hover:border-accent duration-200;
+    @apply inline-flex items-center justify-center w-full whitespace-nowrap gap-2 hover:text-accent cursor-pointer p-1 hover:bg-accent/20 rounded-md border border-transparent hover:border-accent duration-200 focus:outline-none active:outline-none;
 }
 
 .form-container {

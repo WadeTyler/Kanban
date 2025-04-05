@@ -1,20 +1,16 @@
 package net.tylerwade.kanban.service;
 
-import net.tylerwade.kanban.dto.AddMemberRequest;
-import net.tylerwade.kanban.dto.CreateBoardRequest;
-import net.tylerwade.kanban.dto.CreateListItemRequest;
-import net.tylerwade.kanban.dto.UpdateListItemRequest;
+import jakarta.transaction.Transactional;
+import net.tylerwade.kanban.dto.*;
 import net.tylerwade.kanban.exception.BadRequestException;
 import net.tylerwade.kanban.exception.NotFoundException;
 import net.tylerwade.kanban.exception.UnauthorizedException;
 import net.tylerwade.kanban.model.board.Board;
 import net.tylerwade.kanban.model.board.BoardList;
 import net.tylerwade.kanban.model.User;
+import net.tylerwade.kanban.model.board.BoardStatusType;
 import net.tylerwade.kanban.model.board.ListItem;
-import net.tylerwade.kanban.repository.BoardListRepository;
-import net.tylerwade.kanban.repository.BoardRepository;
-import net.tylerwade.kanban.repository.ListItemRepository;
-import net.tylerwade.kanban.repository.UserRepository;
+import net.tylerwade.kanban.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -28,13 +24,15 @@ public class BoardService {
     private final BoardListRepository boardListRepository;
     private final UserRepository userRepository;
     private final ListItemRepository listItemRepository;
+    private final BoardStatusTypeRepository boardStatusTypeRepository;
 
     @Autowired
-    public BoardService(BoardRepository boardRepository, BoardListRepository boardListRepository, UserRepository userRepository, ListItemRepository listItemRepository) {
+    public BoardService(BoardRepository boardRepository, BoardListRepository boardListRepository, UserRepository userRepository, ListItemRepository listItemRepository, BoardStatusTypeRepository boardStatusTypeRepository) {
         this.boardRepository = boardRepository;
         this.boardListRepository = boardListRepository;
         this.userRepository = userRepository;
         this.listItemRepository = listItemRepository;
+        this.boardStatusTypeRepository = boardStatusTypeRepository;
     }
 
     public Iterable<Board> getAllUserBoards(User user) {
@@ -258,5 +256,92 @@ public class BoardService {
                 }
             }
         }
+    }
+
+    public Board createStatusType(Board board, CreateUpdateStatusRequest request) throws BadRequestException {
+        // Check status field
+        if (request.getStatus() == null || request.getStatus().isEmpty()) {
+            throw new BadRequestException("Status cannot be null or empty");
+        }
+
+        // Check color field
+        if (request.getColor() == null || request.getColor().isEmpty()) {
+            throw new BadRequestException("Color cannot be null or empty");
+        }
+
+        // Create new status type
+        BoardStatusType newBoardStatusType = new BoardStatusType(board, request.getStatus(), request.getColor());
+
+        // Save
+        board.getStatusTypes().add(newBoardStatusType);
+        boardRepository.save(board);
+
+        // Return the board
+        return board;
+    }
+
+    @Transactional
+    public Board removeStatusType(Board board, Long statusTypeId) throws NotFoundException {
+
+        // Get managed board instance
+        Board managedBoard = boardRepository.findById(board.getBoardId())
+                .orElseThrow(() -> new NotFoundException("Board not found."));
+
+        // Find Status Type
+       BoardStatusType statusType = managedBoard.getStatusTypes().stream()
+                .filter(type -> type.getId().equals(statusTypeId))
+                .findFirst()
+                .orElseThrow(() -> new NotFoundException("Status type not found."));
+
+        // Remove the status type from all list items in the board
+        managedBoard.getLists().forEach(boardList -> boardList.getListItems()
+                .forEach(listItem -> {
+                    if (listItem.getStatus() != null && listItem.getStatus().getId().equals(statusTypeId)) {
+                        listItem.setStatus(null);
+                    }
+                }));
+
+        // Remove the status type from the board's list
+        managedBoard.getStatusTypes().remove(statusType);
+
+        boardRepository.save(managedBoard);
+        // Return the updated board
+        return managedBoard;
+    }
+
+    @Transactional
+    public Board updateStatusType(Board board, Long statusTypeId, CreateUpdateStatusRequest request) throws BadRequestException, NotFoundException {
+        // Check fields
+        if (request.getStatus() == null || request.getStatus().isEmpty()) {
+            throw new BadRequestException("Status cannot be null or empty");
+        }
+
+        if (request.getColor() == null || request.getColor().isEmpty()) {
+            throw new BadRequestException("Color cannot be null or empty");
+        }
+
+        // Get Managed board
+        Board managedBoard = boardRepository.findById(board.getBoardId())
+                .orElseThrow(() -> new NotFoundException("Board not found."));
+
+        // Find status type
+        BoardStatusType statusType = managedBoard.getStatusTypes().stream()
+                .filter(type -> type.getId().equals(statusTypeId))
+                .findFirst()
+                .orElseThrow(() -> new NotFoundException("Status type not found."));
+
+        // Update status type
+        statusType.setStatus(request.getStatus());
+        statusType.setColor(request.getColor());
+
+        // Update the status type in the board's list
+        managedBoard.getStatusTypes().removeIf(type -> type.getId().equals(statusTypeId));
+        managedBoard.getStatusTypes().add(statusType);
+
+        // Save the updated board
+        boardRepository.save(managedBoard);
+
+        // Return the updated board
+        return managedBoard;
     }
 }

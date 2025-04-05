@@ -15,6 +15,7 @@ import BoardSettings from "@/components/board/BoardSettings";
 import {useBoardUIStore} from "@/stores/board-ui.store";
 import ScreenPanelOverlay from "@/components/ScreenPanelOverlay";
 import ListItemSettings from "@/components/board/list-item/ListItemSettings";
+import EditStatusTypes from "@/components/board/EditStatusTypes";
 
 const Page = () => {
   // Nav
@@ -24,6 +25,7 @@ const Page = () => {
   // States
   const [board, setBoard] = useState<Board | null>(null);
   const [isShowingSettings, setIsShowingSettings] = useState<boolean>(false);
+  const [isEditingStatusTypes, setIsEditingStatusTypes] = useState<boolean>(false);
 
   // Store
   const {loadBoard, isLoadingBoard, loadBoardError} = useBoardStore();
@@ -36,7 +38,9 @@ const Page = () => {
     resetNewBoardList,
     connectedUsers,
     updatedBoardList,
-    resetUpdatedBoardList
+    resetUpdatedBoardList,
+    updatedBoard,
+    resetUpdatedBoard
   } = useWebSocketStore();
 
   const {resetBoardUI, focusedListItem, setFocusedListItem} = useBoardUIStore();
@@ -115,6 +119,16 @@ const Page = () => {
 
   }, [updatedBoardList]);
 
+
+  // Handle updated board
+  useEffect(() => {
+    if (updatedBoard && board) {
+      setBoard(updatedBoard);
+      console.log("Updated board received: ", updatedBoard);
+      resetUpdatedBoard();
+    }
+  }, [updatedBoard]);
+
   ////////////////////////// RETURNS //////////////////////////
 
   if (isLoadingBoard) {
@@ -132,23 +146,23 @@ const Page = () => {
 
         {board && (
           <div className="w-full h-full flex flex-col gap-4">
-            <header className="flex items-center justify-between gap-4 w-full">
+            <div className="flex items-center justify-between gap-4 w-full">
               <h1 className="text-xl font-semibold text-accent">{board.name}</h1>
               {/* Action Btns */}
               <div className="flex items-center gap-4">
 
                 <ConnectedUsers connectedUsers={connectedUsers}/>
 
-                <button className="relative group h-fit" >
+                <div className="relative group h-fit" >
                   <RiSettings2Line className="hover-btn size-8" onClick={() => setIsShowingSettings(prev => !prev)}/>
                   {!isShowingSettings && <Label text={"Settings"}/>}
                   {isShowingSettings && board && (
-                    <BoardSettings board={board}/>)
+                    <BoardSettings board={board} editStatusTypes={() => setIsEditingStatusTypes(true)}/>)
                   }
-                </button>
+                </div>
 
               </div>
-            </header>
+            </div>
             <hr className="text-secondary"/>
             <div className="w-full h-full flex gap-8 overflow-x-scroll overflow-y-hidden">
               {board.lists?.map((boardList) => (
@@ -158,9 +172,15 @@ const Page = () => {
             </div>
 
 
-            {focusedListItem && (
+            {focusedListItem && !isEditingStatusTypes && (
               <ScreenPanelOverlay>
                 <ListItemSettings listItem={focusedListItem} closeSettings={() => setFocusedListItem(null)} board={board} />
+              </ScreenPanelOverlay>
+            )}
+
+            {isEditingStatusTypes && (
+              <ScreenPanelOverlay>
+                <EditStatusTypes statusTypes={board.statusTypes} close={() => setIsEditingStatusTypes(false)} />
               </ScreenPanelOverlay>
             )}
 

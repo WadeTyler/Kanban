@@ -3,6 +3,7 @@ import {ListItem as ListItemType} from "@/types/board.types";
 import {useBoardUIStore} from "@/stores/board-ui.store";
 import Label from "@/components/Label";
 import {isOverdue} from "@/lib/util";
+import StatusType from "@/components/board/StatusType";
 
 const ListItem = ({listItem}: {
   listItem: ListItemType;
@@ -62,9 +63,7 @@ const ListItem = ({listItem}: {
       <div className="flex gap-1 items-center w-full justify-between">
 
         {listItem.status && (
-          <span className="text-sm text-white/70">
-            {listItem.status.length > 20 ? listItem.status.slice(0, 17) + '...' : listItem.status}
-          </span>
+          <StatusType statusType={listItem.status} />
         )}
 
         {listItem.dueDate && (

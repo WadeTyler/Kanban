@@ -42,7 +42,9 @@ public class ListItem {
 
     private Date dueDate;
 
-    private String status;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "status_id")
+    private BoardStatusType status;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "assigned_to")

@@ -1,12 +1,17 @@
 package net.tylerwade.kanban.controller;
 
+import net.tylerwade.kanban.dto.CreateUpdateStatusRequest;
+import net.tylerwade.kanban.exception.BadRequestException;
+import net.tylerwade.kanban.exception.NotFoundException;
 import net.tylerwade.kanban.exception.UnauthorizedException;
 import net.tylerwade.kanban.model.User;
+import net.tylerwade.kanban.model.board.Board;
 import net.tylerwade.kanban.service.BoardService;
 import net.tylerwade.kanban.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 
@@ -31,6 +36,7 @@ public class BoardWSController {
         this.boardService = boardService;
     }
 
+    // Connect to board and output connected users
     @MessageMapping("/boards/{boardId}/connect")
     public void connectedToBoard(@DestinationVariable String boardId, Principal principal) throws UnauthorizedException {
         User user = userService.getUser(principal.getName());
@@ -49,6 +55,7 @@ public class BoardWSController {
         this.messagingTemplate.convertAndSend("/topic/boards/" + boardId + "/connectedUsers", users);
     }
 
+    // Disconnect from board
     @MessageMapping("/boards/{boardId}/disconnect")
     public void disconnectFromBoard(@DestinationVariable String boardId, Principal principal) throws UnauthorizedException {
         User user = userService.getUser(principal.getName());
@@ -61,6 +68,46 @@ public class BoardWSController {
 
         // Output connected users
         this.messagingTemplate.convertAndSend("/topic/boards/" + boardId + "/connectedUsers", users);
+    }
+
+    // Add status type to board and output updated board
+    @MessageMapping("/boards/{boardId}/status-types/create")
+    public void createStatusType(@DestinationVariable String boardId, Principal principal, @Payload CreateUpdateStatusRequest createUpdateStatusRequest) throws NotFoundException, UnauthorizedException, BadRequestException {
+        User user = userService.getUser(principal.getName());
+        Board board = boardService.getBoardById(boardId, user);
+
+        System.out.println("User " + user.getName() + " creating status type on board " + boardId);
+
+        Board updatedBoard = boardService.createStatusType(board, createUpdateStatusRequest);
+
+        // Output updated board
+        this.messagingTemplate.convertAndSend("/topic/boards/" + boardId + "/updated", updatedBoard);
+    }
+
+
+    // Remove status type and output updated board
+    @MessageMapping("/boards/{boardId}/status-types/{statusTypeId}/delete")
+    public void deleteStatusType(@DestinationVariable String boardId, @DestinationVariable Long statusTypeId, Principal principal) throws NotFoundException, UnauthorizedException {
+        User user = userService.getUser(principal.getName());
+        Board board = boardService.getBoardById(boardId, user);
+
+        Board updatedBoard = boardService.removeStatusType(board, statusTypeId);
+
+        // Output updated board
+        this.messagingTemplate.convertAndSend("/topic/boards/" + boardId + "/updated", updatedBoard);
+    }
+
+    @MessageMapping("/boards/{boardId}/status-types/{statusTypeId}/update")
+    public void updateStatusType(@DestinationVariable String boardId, @DestinationVariable Long statusTypeId, Principal principal, @Payload CreateUpdateStatusRequest createUpdateStatusRequest) throws NotFoundException, UnauthorizedException, BadRequestException {
+        User user = userService.getUser(principal.getName());
+        Board board = boardService.getBoardById(boardId, user);
+
+        System.out.println("User " + user.getName() + " updating status type on board " + boardId);
+
+        Board updatedBoard = boardService.updateStatusType(board, statusTypeId, createUpdateStatusRequest);
+
+        // Output updated board
+        this.messagingTemplate.convertAndSend("/topic/boards/" + boardId + "/updated", updatedBoard);
     }
 
 }
