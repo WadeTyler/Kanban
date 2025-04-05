@@ -8,11 +8,13 @@ import {Board} from "@/types/board.types";
 import LoadingScreen from "@/components/LoadingScreen";
 import {User} from "@/types/auth.types";
 import {
+  RiArrowLeftLongLine,
   RiDeleteBack2Line, RiShieldUserLine, RiUserAddLine,
 } from "@remixicon/react";
 import Label from "@/components/Label";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import ConfirmPanel from "@/components/ConfirmPanel";
+import Link from "next/link";
 
 const Page = () => {
 
@@ -113,7 +115,14 @@ const Page = () => {
   return (
     <AuthProvider authRequired={true}>
       <div className="page-padding w-full min-h-screen flex flex-col items-center gap-4">
-        <div className="max-w-[55rem] w-full flex flex-col items-center gap-4">
+        <div className="max-w-[55rem] w-full flex flex-col items-center gap-4 relative">
+
+
+          <Link href={`/boards/${boardId}`} className="absolute top-0 left-0 submit-btn">
+            <RiArrowLeftLongLine />
+            Back
+          </Link>
+
           <header className="flex flex-col items-center gap-2 w-full">
             <h1 className="text-3xl font-bold text-accent">Board Members</h1>
             {isBoardOwner
@@ -131,7 +140,10 @@ const Page = () => {
           )}
 
           {board && user && (
-            <div className="w-full flex flex-col items-center gap-4">
+            <div className="w-full flex flex-col items-center gap-4 relative">
+
+
+
               {isBoardOwner && (
                 <form className="max-w-96 w-full flex flex-col items-center gap-4" onSubmit={handleAddMember}>
                   <div className="w-full flex items-center gap-2 h-12">
