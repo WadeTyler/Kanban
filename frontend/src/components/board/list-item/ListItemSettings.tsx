@@ -7,6 +7,7 @@ import {useWebSocketStore} from "@/stores/websocket.store";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import {RiDeleteBack2Line, RiDeleteBin2Line} from "@remixicon/react";
 import {useBoardUIStore} from "@/stores/board-ui.store";
+import {isOverdue} from "@/lib/util";
 
 const ListItemSettings = ({listItem, closeSettings, board}: {
   listItem: ListItem;
@@ -75,12 +76,14 @@ const ListItemSettings = ({listItem, closeSettings, board}: {
   return (
     <div className="max-w-[55rem] w-full bg-background rounded-md shadow-md flex flex-col gap-4 p-4">
 
-      <header className={`flex items-center justify-between rounded-md p-2`} style={{
-        backgroundColor: listItemForm.color ? listItemForm.color : 'transparent',
+      <header className={`flex items-center justify-between rounded-md p-2 text-white`} style={{
+        backgroundColor: listItemForm.color ? listItemForm.color : 'var(--color-secondary)',
       }}>
         <input
-          className="text-lg font-semibold text-foreground input-bar border-transparent! focus:outline-none duration-200 cursor-text!"
+          className="text-lg font-semibold border-transparent! focus:outline-none duration-200 cursor-text! w-full"
           value={listItemForm.title}
+          required
+          maxLength={255}
           onChange={(e) => {
             setListItemForm(prev => ({
               ...prev,
@@ -147,7 +150,7 @@ const ListItemSettings = ({listItem, closeSettings, board}: {
             <label className="text-xs font-semibold">DUE:</label>
             <input
               type="date"
-              className="input-bar p-1! max-w-48 w-full cursor-pointer"
+              className={`input-bar p-1! max-w-48 w-full cursor-pointer ${isOverdue(listItemForm.dueDate) && 'bg-danger! text-white! font-semibold border-danger!'}`}
               value={listItemForm.dueDate || ''}
               onChange={(e) => {
                 setListItemForm(prev => ({

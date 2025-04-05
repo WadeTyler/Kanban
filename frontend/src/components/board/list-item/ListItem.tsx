@@ -2,13 +2,30 @@
 import {ListItem as ListItemType} from "@/types/board.types";
 import {useBoardUIStore} from "@/stores/board-ui.store";
 import Label from "@/components/Label";
+import {isOverdue} from "@/lib/util";
 
 const ListItem = ({listItem}: {
   listItem: ListItemType;
 }) => {
 
 
-  const { setFocusedListItem, focusedListItem } = useBoardUIStore();
+  const {setFocusedListItem, focusedListItem} = useBoardUIStore();
+
+
+  const formattedDueDate = () => {
+    if (!listItem.dueDate) return null;
+
+    const date = new Date(listItem.dueDate);
+    if (date < new Date()) {
+      return "Overdue";
+    }
+
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit'
+    });
+  }
 
   return (
     <div
@@ -18,9 +35,9 @@ const ListItem = ({listItem}: {
           setFocusedListItem(listItem);
         }
       }}
-      className={`w-full flex flex-col gap-2 p-2 text-foreground rounded-md shadow-sm hover:shadow-md hover:bg-background/80 duration-200 cursor-pointer`}
+      className={`w-full flex flex-col gap-2 p-2 text-white rounded-md shadow-sm hover:shadow-md hover:bg-background/80 duration-200 cursor-pointer`}
       style={{
-        background: listItem.color ? listItem.color : 'var(--color-background)'
+        background: listItem.color ? listItem.color : 'var(--color-secondary)'
       }}
     >
 
@@ -37,7 +54,7 @@ const ListItem = ({listItem}: {
               alt="Assigned User"
               className="w-6 h-6 rounded-full shadow-lg"
             />
-            <Label text={`${listItem.assignedTo.name}`} />
+            <Label text={`${listItem.assignedTo.name}`}/>
           </div>
         )}
       </div>
@@ -45,19 +62,15 @@ const ListItem = ({listItem}: {
       <div className="flex gap-1 items-center w-full justify-between">
 
         {listItem.status && (
-          <span className="text-sm text-foreground/70">
+          <span className="text-sm text-white/70">
             {listItem.status.length > 20 ? listItem.status.slice(0, 17) + '...' : listItem.status}
           </span>
         )}
 
         {listItem.dueDate && (
-          <span className="text-sm text-foreground/70">
-            Due:&nbsp;
-            {new Date(listItem.dueDate).toLocaleDateString('en-US', {
-              year: 'numeric',
-              month: '2-digit',
-              day: '2-digit'
-            })}
+          <span className={`text-sm ${isOverdue(listItem.dueDate) ? 'text-white bg-danger p-1 rounded-md font-semibold' : 'text-white/70'}`}>
+            {!isOverdue(listItem.dueDate) && <span>Due:&nbsp;</span>}
+            {formattedDueDate()}
           </span>
         )}
 
