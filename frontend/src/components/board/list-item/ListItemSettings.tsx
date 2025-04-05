@@ -100,7 +100,7 @@ const ListItemSettings = ({listItem, closeSettings, board}: {
 
         {/* Description */}
         <textarea
-          className="input-bar resize-none h-48 w-full"
+          className="input-bar resize-none min-h-full w-full"
           placeholder={`Enter a description for '${listItem.title}'`}
           value={listItemForm.description || ''}
           onChange={(e) => {

@@ -131,7 +131,7 @@ const Page = () => {
             }
           </header>
 
-          <hr className="border-secondary w-full border"/>
+          <hr className="w-full text-secondary"/>
 
           {loadBoardError && (
             <div className="w-full flex items-center justify-center">

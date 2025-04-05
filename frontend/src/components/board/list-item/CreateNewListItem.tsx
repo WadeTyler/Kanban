@@ -26,7 +26,7 @@ const CreateNewListItem = ({boardList}: {
     <div className="w-full flex flex-col gap-2">
 
       <form onSubmit={handleSubmit}>
-        <input type="text" className="input-bar border-accent!" disabled={isUpdatingBoardList} placeholder="Create new Item"
+        <input type="text" className="input-bar border-accent! text-accent!" disabled={isUpdatingBoardList} placeholder="Create new Item"
                value={title}
                onChange={(e) => setTitle(e.target.value)}
         />

@@ -149,7 +149,7 @@ const Page = () => {
 
               </div>
             </header>
-            <hr className="border w-full border-secondary"/>
+            <hr className="text-secondary"/>
             <div className="w-full h-full flex gap-8 overflow-x-scroll overflow-y-hidden">
               {board.lists?.map((boardList) => (
                 <BoardList boardList={boardList} key={boardList.boardListId} />
