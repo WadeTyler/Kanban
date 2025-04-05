@@ -19,7 +19,7 @@ public class BoardList {
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long boardListId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "board_id")
     @JsonIgnore
     private Board board;
