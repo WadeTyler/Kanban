@@ -3,6 +3,7 @@ package net.tylerwade.kanban.service;
 import net.tylerwade.kanban.dto.AddMemberRequest;
 import net.tylerwade.kanban.dto.CreateBoardRequest;
 import net.tylerwade.kanban.dto.CreateListItemRequest;
+import net.tylerwade.kanban.dto.UpdateListItemRequest;
 import net.tylerwade.kanban.exception.BadRequestException;
 import net.tylerwade.kanban.exception.NotFoundException;
 import net.tylerwade.kanban.exception.UnauthorizedException;
@@ -17,8 +18,8 @@ import net.tylerwade.kanban.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.sql.Date;
+import java.util.*;
 
 @Service
 public class BoardService {
@@ -136,13 +137,17 @@ public class BoardService {
         }
 
         board.getMembers().removeIf((member) -> member.getUserId().equals(memberId));
+        removeFromAssignedListItemsInBoard(user, board);
+
         boardRepository.save(board);
+
+        // Remove user from assigned list items
+        removeFromAssignedListItemsInBoard(user, board);
 
         return board.getMembers();
     }
 
     public void leaveBoard(Board board, User user) throws BadRequestException {
-
         // Check if user is a member of the board
         if (!board.getMembers().contains(user)) {
             throw new BadRequestException("You are not a member of this board.");
@@ -158,12 +163,14 @@ public class BoardService {
         members.remove(user);
         board.setMembers(members);
 
+        // Remove user from assigned list items
+        removeFromAssignedListItemsInBoard(user, board);
+
         // Save the board
         boardRepository.save(board);
     }
 
     public Board promoteUserToOwner(Board board, User user, String memberId) throws UnauthorizedException, NotFoundException {
-
         // Check if owner of the board
         if (!board.getOwner().equals(user)) {
             throw new UnauthorizedException("You are not authorized to promote members.");
@@ -208,5 +215,48 @@ public class BoardService {
 
         listItemRepository.save(newListItem);
         return boardList;
+    }
+
+    public BoardList updateListItem(BoardList boardList, Long itemId, UpdateListItemRequest updateListItemRequest) throws BadRequestException {
+        // Check fields
+        if (updateListItemRequest.getTitle() == null || updateListItemRequest.getTitle().isEmpty())
+            throw new BadRequestException("Title is required.");
+
+        if (updateListItemRequest.getPosition() == null || updateListItemRequest.getPosition() < 0)
+            throw new BadRequestException("Position is required and cannot be negative.");
+
+        // Find target list item
+        ListItem listItem = boardList.getListItems().stream()
+                .filter((item) -> Objects.equals(item.getListItemId(), itemId))
+                .findFirst()
+                .orElseThrow(() -> new BadRequestException("List item not found."));
+
+        // Update list item fields
+        listItem.setTitle(updateListItemRequest.getTitle());
+        listItem.setDescription(updateListItemRequest.getDescription());
+        listItem.setStatus(updateListItemRequest.getStatus());
+        listItem.setColor(updateListItemRequest.getColor());
+        listItem.setAssignedTo(updateListItemRequest.getAssignedTo());
+        listItem.setDueDate(updateListItemRequest.getDueDate() != null ? Date.valueOf(updateListItemRequest.getDueDate()) : null);
+
+        // TODO: UPDATE POSITION
+
+        listItemRepository.save(listItem);
+
+        return listItem.getBoardList();
+    }
+
+    private void removeFromAssignedListItemsInBoard(User user, Board board) {
+        List<BoardList> boardLists = board.getLists();
+
+        for (BoardList boardList : boardLists) {
+            List<ListItem> listItems = boardList.getListItems();
+            for (ListItem item : listItems) {
+                if (item.getAssignedTo().equals(user)) {
+                    item.setAssignedTo(null);
+                    listItemRepository.save(item);
+                }
+            }
+        }
     }
 }

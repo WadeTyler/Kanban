@@ -1,20 +1,8 @@
-'use client';
-import React, {FormEvent, useState} from 'react';
-import {BoardList, ListItem as ListItemType} from "@/types/board.types";
+import {BoardList} from "@/types/board.types";
+import React, {FormEvent, useState} from "react";
 import {useWebSocketStore} from "@/stores/websocket.store";
 
-export const ListItem = ({listItem}: {
-  listItem: ListItemType;
-}) => {
-  return (
-    <div
-      className="w-full flex p-2 bg-background text-foreground rounded-md shadow-sm hover:shadow-md hover:bg-background/80 duration-200 cursor-pointer">
-      <h5>{listItem.title}</h5>
-    </div>
-  );
-};
-
-export const CreateNewListItem = ({boardList}: {
+const CreateNewListItem = ({boardList}: {
   boardList: BoardList;
 }) => {
 
@@ -47,3 +35,5 @@ export const CreateNewListItem = ({boardList}: {
     </div>
   )
 }
+
+export default CreateNewListItem;

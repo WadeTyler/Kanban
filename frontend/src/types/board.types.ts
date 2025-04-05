@@ -21,16 +21,27 @@ export type BoardList = {
 
 export type ListItem = {
   listItemId: number;
-  boardList: BoardList;
+  boardListId: number;
   position: number;
-  title?: string;
-  description?: string;
-  dueDate?: string;
-  status?: string;
-  assignedTo?: User;
+  title: string;
+  description: string | null;
+  dueDate: string | null;
+  status: string | null;
+  assignedTo: User | null;
+  color: string | null;
 }
 
 export type CreateBoardRequest = {
   name: string;
   description: string;
+}
+
+export type UpdateListItemRequest = {
+  title: string;
+  description: string | null;
+  dueDate: string | null;
+  status: string | null;
+  assignedTo: User | null;
+  position: number;
+  color: string | null;
 }

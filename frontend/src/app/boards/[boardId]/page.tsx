@@ -8,10 +8,13 @@ import AuthProvider from "@/providers/AuthProvider";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import {RiSettings2Line} from "@remixicon/react";
 import Label from "@/components/Label";
-import {BoardList, CreateNewBoardList} from "@/components/BoardList";
+import {BoardList, CreateNewBoardList} from "@/components/board/BoardList";
 import {useWebSocketStore} from "@/stores/websocket.store";
-import ConnectedUsers from "@/components/ConnectedUsers";
-import BoardSettings from "@/components/BoardSettings";
+import ConnectedUsers from "@/components/board/ConnectedUsers";
+import BoardSettings from "@/components/board/BoardSettings";
+import {useBoardUIStore} from "@/stores/board-ui.store";
+import ScreenPanelOverlay from "@/components/ScreenPanelOverlay";
+import ListItemSettings from "@/components/board/list-item/ListItemSettings";
 
 const Page = () => {
   // Nav
@@ -36,6 +39,7 @@ const Page = () => {
     resetUpdatedBoardList
   } = useWebSocketStore();
 
+  const {resetBoardUI, focusedListItem, setFocusedListItem} = useBoardUIStore();
 
   // Load board and connect to websocket
   useEffect(() => {
@@ -52,7 +56,9 @@ const Page = () => {
         setBoardId(null);
         setBoard(null);
         disconnectFromBoard(boardId);
-      })
+      });
+
+      resetBoardUI();
     }
 
     const handleBeforeUnload = () => {
@@ -98,6 +104,11 @@ const Page = () => {
         }
       });
 
+      // Update focused list item if it is in the updated board list
+      if (focusedListItem && focusedListItem.boardListId === updatedBoardList.boardListId) {
+        setFocusedListItem(updatedBoardList.listItems.find(item => item.listItemId === focusedListItem.listItemId) || null);
+      }
+
       setBoard(newBoard);
       resetUpdatedBoardList();
     }
@@ -132,7 +143,7 @@ const Page = () => {
                   <RiSettings2Line className="hover-btn size-8" onClick={() => setIsShowingSettings(prev => !prev)}/>
                   {!isShowingSettings && <Label text={"Settings"}/>}
                   {isShowingSettings && board && (
-                    <BoardSettings board={board} setBoard={setBoard} />)
+                    <BoardSettings board={board}/>)
                   }
                 </button>
 
@@ -141,17 +152,22 @@ const Page = () => {
             <hr className="border w-full border-secondary"/>
             <div className="w-full h-full flex gap-8 overflow-x-scroll overflow-y-hidden">
               {board.lists?.map((boardList) => (
-                <BoardList boardList={boardList} key={boardList.boardListId} board={board}/>
+                <BoardList boardList={boardList} key={boardList.boardListId} />
               ))}
               <CreateNewBoardList/>
             </div>
 
+
+            {focusedListItem && (
+              <ScreenPanelOverlay>
+                <ListItemSettings listItem={focusedListItem} closeSettings={() => setFocusedListItem(null)} board={board} />
+              </ScreenPanelOverlay>
+            )}
+
+
           </div>
         )}
       </div>
-
-
-
     </AuthProvider>
   );
 };

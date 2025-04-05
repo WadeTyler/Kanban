@@ -1,7 +1,7 @@
 'use client';
 import React, {useEffect, useState} from 'react';
 import AuthProvider from "@/providers/AuthProvider";
-import {BoardThumbnail, CreateBoardThumbnail} from "@/components/BoardThumbnails";
+import {BoardThumbnail, CreateBoardThumbnail} from "@/components/board/BoardThumbnails";
 import useBoardStore from "@/stores/board.store";
 import {Board} from "@/types/board.types";
 import LoadingSpinner from "@/components/LoadingSpinner";

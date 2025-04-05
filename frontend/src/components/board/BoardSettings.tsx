@@ -1,4 +1,4 @@
-import React, {SetStateAction, useState} from 'react';
+import React, {useState} from 'react';
 import {Board} from "@/types/board.types";
 import {RiLogoutBoxLine, RiUserLine} from "@remixicon/react";
 import Link from "next/link";
@@ -8,9 +8,8 @@ import LoadingSpinner from "@/components/LoadingSpinner";
 import useAuthStore from "@/stores/auth.store";
 import ConfirmPanel from "@/components/ConfirmPanel";
 
-const BoardSettings = ({board, setBoard}: {
+const BoardSettings = ({board}: {
   board: Board;
-  setBoard: React.Dispatch<SetStateAction<Board | null>>;
 }) => {
 
   // Navigation

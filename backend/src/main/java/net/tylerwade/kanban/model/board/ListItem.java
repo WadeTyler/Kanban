@@ -1,7 +1,6 @@
 package net.tylerwade.kanban.model.board;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -9,13 +8,13 @@ import lombok.Setter;
 import net.tylerwade.kanban.model.User;
 
 import java.sql.Date;
+import java.util.Objects;
 
 @Entity
 @Table(name = "list_items")
 @Getter
 @Setter
 @NoArgsConstructor
-@JsonInclude(JsonInclude.Include.NON_NULL)
 public class ListItem {
 
     @Id
@@ -28,6 +27,10 @@ public class ListItem {
     @JsonIgnore
     private BoardList boardList;
 
+
+    public Long getBoardListId() {
+        return boardList.getBoardListId();
+    }
 
     @Column(nullable = false)
     private int position;
@@ -42,10 +45,20 @@ public class ListItem {
     private String status;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "assigned_to")
     private User assignedTo;
 
     private String color;
 
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        ListItem listItem = (ListItem) o;
+        return Objects.equals(listItemId, listItem.listItemId);
+    }
 
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(listItemId);
+    }
 }

@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import net.tylerwade.kanban.model.board.Board;
+import net.tylerwade.kanban.model.board.ListItem;
 
 import java.sql.Timestamp;
 import java.util.List;
@@ -29,9 +30,13 @@ public class User {
 
     private Timestamp createdAt = new Timestamp(System.currentTimeMillis());
 
-    @ManyToMany(fetch = FetchType.LAZY, mappedBy = "members", cascade = CascadeType.ALL)
+    @ManyToMany(fetch = FetchType.LAZY, mappedBy = "members")
     @JsonIgnore
     private List<Board> boards;
+
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "assignedTo")
+    @JsonIgnore
+    private List<ListItem> assignedItems;
 
     public User(String userId, String name, String email, String profilePicture) {
         this.userId = userId;

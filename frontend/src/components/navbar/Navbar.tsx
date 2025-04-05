@@ -4,7 +4,7 @@ import useAuthStore from "@/stores/auth.store";
 import {RiHome3Line, RiKanbanView, RiLoginBoxLine} from "@remixicon/react";
 import Link from "next/link";
 import {LOGIN_URL} from "@/environment";
-import ThemeButton from "@/components/ThemeButton";
+import ThemeButton from "@/components/navbar/ThemeButton";
 import Label from "@/components/Label";
 
 const Navbar = () => {

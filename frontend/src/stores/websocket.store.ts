@@ -1,7 +1,7 @@
 import {create} from 'zustand';
 import {Client} from "@stomp/stompjs";
 import {BROKER_URL} from "@/environment";
-import {BoardList, ListItem} from "@/types/board.types";
+import {BoardList, UpdateListItemRequest} from "@/types/board.types";
 import {User} from "@/types/auth.types";
 
 interface WebSocketStore {
@@ -25,6 +25,7 @@ interface WebSocketStore {
   resetUpdatedBoardList: () => void;
 
   createListItem: (title: string, listId: number) => Promise<void>;
+  updateListItem: (updateListItemRequest: UpdateListItemRequest, listId: number, listItemId: number) => Promise<void>;
 }
 export const useWebSocketStore = create<WebSocketStore>((set, get) => ({
 
@@ -49,7 +50,7 @@ export const useWebSocketStore = create<WebSocketStore>((set, get) => ({
   connectToBoard: (boardId: string) => {
     const client = get().client;
 
-    client.onConnect = function (frame) {
+    client.onConnect = function () {
       announceConnected(client, boardId);
 
       // Subscribe to connected users
@@ -153,6 +154,20 @@ export const useWebSocketStore = create<WebSocketStore>((set, get) => ({
     client.publish({
       destination: `/app/boards/${boardId}/lists/${listId}/items/create`,
       body: JSON.stringify({ title })
+    });
+  },
+
+  updateListItem: async (updateListItemRequest: UpdateListItemRequest, listId: number, listItemId: number) => {
+    const boardId = get().boardId;
+    if (!boardId || get().isUpdatingBoardList) return;
+
+    set({ isUpdatingBoardList: true });
+
+    const client = get().client;
+
+    client.publish({
+      destination: `/app/boards/${boardId}/lists/${listId}/items/${listItemId}/update`,
+      body: JSON.stringify(updateListItemRequest)
     });
   }
 }));
