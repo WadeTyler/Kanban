@@ -79,7 +79,7 @@ const ListItemSettings = ({listItem, closeSettings, board}: {
         backgroundColor: listItemForm.color ? listItemForm.color : 'transparent',
       }}>
         <input
-          className="text-lg font-semibold text-foreground input-bar border-transparent! focus:outline-none duration-200"
+          className="text-lg font-semibold text-foreground input-bar border-transparent! focus:outline-none duration-200 cursor-text!"
           value={listItemForm.title}
           onChange={(e) => {
             setListItemForm(prev => ({
@@ -117,7 +117,7 @@ const ListItemSettings = ({listItem, closeSettings, board}: {
             <label className="text-xs font-semibold">COLOR:</label>
             <input
               type="color"
-              className="input-bar p-0! border-none! focus:bg-transparent! bg-transparent! max-w-48 w-full"
+              className="input-bar p-0! border-none! focus:bg-transparent! bg-transparent! max-w-48 w-full cursor-pointer"
               value={listItemForm.color || '#000'}
               onChange={(e) => {
                 setListItemForm(prev => ({
@@ -129,12 +129,15 @@ const ListItemSettings = ({listItem, closeSettings, board}: {
 
             {/* Remove Color button */}
             {listItemForm.color && (
-              <RiDeleteBack2Line onClick={() => {
-                setListItemForm(prev => ({
-                  ...prev,
-                  color: null
-                }));
-              }}/>
+              <RiDeleteBack2Line
+                className="hover:text-accent duration-200 cursor-pointer"
+                onClick={() => {
+                  setListItemForm(prev => ({
+                    ...prev,
+                    color: null
+                  }));
+                }}
+              />
             )}
 
           </div>
@@ -144,7 +147,7 @@ const ListItemSettings = ({listItem, closeSettings, board}: {
             <label className="text-xs font-semibold">DUE:</label>
             <input
               type="date"
-              className="input-bar p-1! max-w-48 w-full"
+              className="input-bar p-1! max-w-48 w-full cursor-pointer"
               value={listItemForm.dueDate || ''}
               onChange={(e) => {
                 setListItemForm(prev => ({

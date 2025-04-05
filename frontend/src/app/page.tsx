@@ -16,7 +16,7 @@ export default function Home() {
             <p>Name: {user.name}</p>
             <p>Email: {user.email}</p>
             <p>ID: {user.userId}</p>
-            <img src={user.picture} alt="User Profile Picture"/>
+            <img src={user.profilePicture} alt="User Profile Picture"/>
 
             <a href={LOGOUT_URL}>Logout</a>
           </div>

@@ -79,5 +79,5 @@ body {
 }
 
 .input-bar {
-    @apply w-full rounded-md border border-secondary p-2 focus:outline-none focus:border-accent duration-200 focus:bg-accent/20 placeholder:text-secondary/70 ;
+    @apply w-full rounded-md border border-secondary p-2 focus:outline-none focus:border-accent duration-200 focus:bg-accent/20 placeholder:text-secondary/70;
 }
