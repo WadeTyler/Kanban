@@ -17,7 +17,7 @@ const ListItemSettings = ({listItem, closeSettings, board}: {
 }) => {
 
   // Stores
-  const {updateListItem, isUpdatingBoardList} = useWebSocketStore();
+  const {updateListItem, isUpdatingBoardList, deleteListItem} = useWebSocketStore();
   const {focusedListItem} = useBoardUIStore();
 
   // States
@@ -57,6 +57,12 @@ const ListItemSettings = ({listItem, closeSettings, board}: {
     }
 
     await updateListItem(updateRequest, listItem.boardListId, listItem.listItemId);
+  }
+
+  const handleDelete = async () => {
+    if (isUpdatingBoardList) return;
+
+    await deleteListItem(listItem.boardListId, listItem.listItemId);
   }
 
   // Handle Key Events
@@ -215,7 +221,7 @@ const ListItemSettings = ({listItem, closeSettings, board}: {
             )}
           </div>
 
-          {/* Assigned TO */}
+          {/* Assigned To */}
           <div className="flex gap-2 items-center justify-between relative">
             <label className="text-xs font-semibold">ASSIGNED TO:</label>
             <div
@@ -267,7 +273,7 @@ const ListItemSettings = ({listItem, closeSettings, board}: {
             )}
           </div>
 
-          <button className="danger-btn">
+          <button className="danger-btn" onClick={handleDelete}>
             <RiDeleteBin2Line/>
             Delete
           </button>

@@ -30,7 +30,7 @@ public class BoardList {
     @Column(nullable = false)
     private int position;
 
-    @OneToMany(mappedBy = "boardList", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "boardList", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
     private List<ListItem> listItems;
 
 }

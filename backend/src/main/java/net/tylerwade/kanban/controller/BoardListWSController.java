@@ -48,6 +48,7 @@ public class BoardListWSController {
         this.messagingTemplate.convertAndSend("/topic/boards/" + boardId + "/lists/new", boardList);
     }
 
+    // Endpoint to delete a list
     @MessageMapping("/boards/{boardId}/lists/{listId}/items/create")
     public void createListItem(@DestinationVariable String boardId, @DestinationVariable Long listId, Principal principal, @Payload CreateListItemRequest createListItemRequest) throws NotFoundException, UnauthorizedException, BadRequestException {
         User user = userService.getUser(principal.getName());
@@ -60,6 +61,7 @@ public class BoardListWSController {
         this.messagingTemplate.convertAndSend("/topic/boards/" + boardId + "/lists/updated", updatedBoardList);
     }
 
+    // Endpoint to update a list item
     @MessageMapping("/boards/{boardId}/lists/{listId}/items/{itemId}/update")
     public void updateListItem(@DestinationVariable String boardId, @DestinationVariable Long listId, @DestinationVariable Long itemId, Principal principal, @Payload UpdateListItemRequest updateListItemRequest) throws UnauthorizedException, NotFoundException, BadRequestException {
         User user = userService.getUser(principal.getName());
@@ -68,6 +70,18 @@ public class BoardListWSController {
         BoardList boardList = getBoardListByIdFromBoard(board, listId);
 
         BoardList updatedBoardList = boardService.updateListItem(boardList, itemId, updateListItemRequest);
+
+        this.messagingTemplate.convertAndSend("/topic/boards/" + boardId + "/lists/updated", updatedBoardList);
+    }
+
+    @MessageMapping("/boards/{boardId}/lists/{listId}/items/{itemId}/delete")
+    public void deleteListItem(@DestinationVariable String boardId, @DestinationVariable Long listId, @DestinationVariable Long itemId, Principal principal) throws NotFoundException, UnauthorizedException {
+        User user = userService.getUser(principal.getName());
+        Board board = boardService.getBoardById(boardId, user);
+
+        BoardList boardList = getBoardListByIdFromBoard(board, listId);
+
+        BoardList updatedBoardList = boardService.deleteListItem(boardList, itemId);
 
         this.messagingTemplate.convertAndSend("/topic/boards/" + boardId + "/lists/updated", updatedBoardList);
     }

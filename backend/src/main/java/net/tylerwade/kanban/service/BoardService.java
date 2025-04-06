@@ -338,4 +338,24 @@ public class BoardService {
         // Return the updated board
         return managedBoard;
     }
+
+    @Transactional
+    public BoardList deleteListItem(BoardList boardList, Long itemId) throws NotFoundException {
+       // get managed instance of board list
+        BoardList managedBoardList = boardListRepository.findById(boardList.getBoardListId())
+                .orElseThrow(() -> new NotFoundException("Board list not found"));
+
+        // Find list item in boardlist
+        ListItem listItem = managedBoardList.getListItems().stream()
+                .filter(item -> item.getListItemId().equals(itemId))
+                .findFirst()
+                .orElseThrow(() -> new NotFoundException("List item not found"));
+
+        // Remove
+        managedBoardList.getListItems().remove(listItem);
+        // Save
+        boardListRepository.save(managedBoardList);
+
+        return managedBoardList;
+    }
 }

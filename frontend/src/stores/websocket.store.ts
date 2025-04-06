@@ -34,6 +34,7 @@ interface WebSocketStore {
 
   createListItem: (title: string, listId: number) => Promise<void>;
   updateListItem: (updateListItemRequest: UpdateListItemRequest, listId: number, listItemId: number) => Promise<void>;
+  deleteListItem: (listId: number, listItemId: number) => Promise<void>;
 }
 export const useWebSocketStore = create<WebSocketStore>((set, get) => ({
 
@@ -238,6 +239,20 @@ export const useWebSocketStore = create<WebSocketStore>((set, get) => ({
     client.publish({
       destination: `/app/boards/${boardId}/lists/${listId}/items/${listItemId}/update`,
       body: JSON.stringify(updateListItemRequest)
+    });
+  },
+
+  deleteListItem: async (listId: number, listItemId: number) => {
+    const boardId = get().boardId;
+    if (!boardId || get().isUpdatingBoardList) return;
+
+    set({ isUpdatingBoardList: true });
+
+    const client = get().client;
+
+    client.publish({
+      destination: `/app/boards/${boardId}/lists/${listId}/items/${listItemId}/delete`,
+      body: JSON.stringify({})
     });
   }
 }));
