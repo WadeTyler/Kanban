@@ -24,15 +24,13 @@ public class BoardService {
     private final BoardListRepository boardListRepository;
     private final UserRepository userRepository;
     private final ListItemRepository listItemRepository;
-    private final BoardStatusTypeRepository boardStatusTypeRepository;
 
     @Autowired
-    public BoardService(BoardRepository boardRepository, BoardListRepository boardListRepository, UserRepository userRepository, ListItemRepository listItemRepository, BoardStatusTypeRepository boardStatusTypeRepository) {
+    public BoardService(BoardRepository boardRepository, BoardListRepository boardListRepository, UserRepository userRepository, ListItemRepository listItemRepository) {
         this.boardRepository = boardRepository;
         this.boardListRepository = boardListRepository;
         this.userRepository = userRepository;
         this.listItemRepository = listItemRepository;
-        this.boardStatusTypeRepository = boardStatusTypeRepository;
     }
 
     public Iterable<Board> getAllUserBoards(User user) {
@@ -44,10 +42,6 @@ public class BoardService {
         // Check requests values
         if (request.getName() == null || request.getName().isEmpty()) {
             throw new BadRequestException("Board name cannot be null or empty");
-        }
-
-        if (request.getDescription() == null || request.getDescription().isEmpty()) {
-            throw new BadRequestException("Board description cannot be null or empty");
         }
 
         // Check if user already has a board with the same name

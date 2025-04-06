@@ -62,7 +62,7 @@ const Page = () => {
             </div>
             <div className="input-container">
               <label className="input-label">Board Description:</label>
-              <textarea className="input-bar resize-none h-24" name="description" required maxLength={500}
+              <textarea className="input-bar resize-none h-24" name="description" maxLength={500}
                         placeholder="(Optional) Enter a description for your board." onChange={(e) => {
                 setCreateBoardRequest(prev => ({
                   ...prev,
