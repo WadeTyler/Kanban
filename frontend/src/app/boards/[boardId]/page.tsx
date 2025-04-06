@@ -151,7 +151,7 @@ const Page = () => {
               {/* Action Btns */}
               <div className="flex items-center gap-4">
 
-                <ConnectedUsers connectedUsers={connectedUsers}/>
+                <ConnectedUsers connectedUsers={connectedUsers} boardOwner={board.owner} />
 
                 <div className="relative group h-fit" >
                   <RiSettings2Line className="hover-btn size-8" onClick={() => setIsShowingSettings(prev => !prev)}/>
