@@ -1,7 +1,7 @@
 import {create} from 'zustand';
-import {API_URL} from "@/environment";
 import {User} from "@/types/auth.types";
-import { APIResponse } from "@/types/APIResponse.types";
+import {APIResponse} from "@/types/APIResponse.types";
+import {http} from "@/lib/http.config";
 
 interface AuthStore {
   user: User | null;
@@ -14,26 +14,17 @@ const useAuthStore = create<AuthStore>((set) => ({
   isLoadingUser: true,
 
   loadUser: async () => {
-    set({ isLoadingUser: true });
-    try {
-      const response = await fetch(`${API_URL}/v1/auth`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include"
+    set({isLoadingUser: true});
+    await http.get<APIResponse<User>>('/v1/auth')
+      .then((apiResponse) => {
+        set({user: apiResponse.data});
+      })
+      .catch(() => {
+        set({user: null});
+      })
+      .finally(() => {
+        set({isLoadingUser: false});
       });
-
-      const apiResponse: APIResponse<User> = await response.json();
-      if (!response.ok || !apiResponse.data || !apiResponse.success) throw new Error(apiResponse.message);
-
-      set({ user: apiResponse.data });
-    } catch (e) {
-      console.error((e as Error).message || "Failed to load user.");
-      set({ user: null});
-    } finally {
-      set({ isLoadingUser: false });
-    }
   }
 }));
 
