@@ -27,7 +27,7 @@ export const BoardList = ({boardList}: {
     <div
       className="min-w-72 min-h-24 h-fit max-h-full flex flex-col p-2 gap-4 bg-secondary-dark shadow-xl hover:shadow-2xl rounded-md border-secondary-dark border hover:border-accent duration-200 " style={style}>
 
-      <div className="bg-green-500 cursor-pointer" ref={setNodeRef} {...attributes} {...listeners}>
+      <div className="cursor-pointer" ref={setNodeRef} {...attributes} {...listeners}>
         <h2 className="text-white font-semibold text-lg">{boardList.name}</h2>
       </div>
 
@@ -86,7 +86,7 @@ export const BoardListOverlay = ({boardList}: {
 }) => {
   return (
     <div
-      className="min-w-72 min-h-24 h-fit max-h-full flex bg-secondary-dark opacity-50 flex-col p-2 gap-4 bg-black shadow-xl hover:shadow-2xl rounded-md border-secondary-dark border hover:border-accent duration-200 ">
+      className="min-w-72 min-h-24 h-fit max-h-full flex bg-secondary-dark opacity-50 flex-col p-2 gap-4 shadow-xl hover:shadow-2xl rounded-md border-secondary-dark border hover:border-accent duration-200 ">
 
       <div className="bg-green-500 cursor-pointer">
         <h2 className="text-white font-semibold text-lg">{boardList.name}</h2>
