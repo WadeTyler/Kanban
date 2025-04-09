@@ -49,7 +49,10 @@ const Page = () => {
     updatedBoardList,
     resetUpdatedBoardList,
     updatedBoard,
-    resetUpdatedBoard
+    resetUpdatedBoard,
+    updatedBoardLists,
+    updateAllBoardLists,
+    resetUpdatedBoardLists
   } = useWebSocketStore();
 
   const {resetBoardUI, focusedListItem, setFocusedListItem} = useBoardUIStore();
@@ -138,6 +141,25 @@ const Page = () => {
     }
   }, [updatedBoard]);
 
+  // Handle updated board lists
+  useEffect(() => {
+    if (updatedBoardLists && board) {
+      setBoard(prevBoard => {
+        if (prevBoard) return {
+          ...prevBoard,
+          lists: updatedBoardLists
+        }
+        console.log("here");
+        return prevBoard;
+      });
+      resetUpdatedBoardLists();
+      console.log("Updated board lists received: ", updatedBoardLists);
+    }
+  }, [updatedBoardLists]);
+
+  useEffect(() => {
+    console.log("Board: ", board);
+  }, [board]);
 
   ////////////////////////// DRAGGABLE //////////////////////////
 
@@ -162,24 +184,22 @@ const Page = () => {
       const newIndex = boardLists.indexOf(boardLists.find(list => list.boardListId === over.id) as BoardList_Type);
 
       // Move the list
-      const updatedBoardList = arrayMove<BoardList_Type>(boardLists, oldIndex, newIndex).map((list, index) => {
+      const updatedBoardLists: BoardList_Type[] = arrayMove<BoardList_Type>(boardLists, oldIndex, newIndex).map((list, index) => {
         return {
           ...list,
           position: index,  // Update the position of each list
         }
       });
 
-      console.log("List: ", updatedBoardList);
-
       setBoard({
         ...board,
-        lists: updatedBoardList
+        lists: updatedBoardLists
       });
 
       setActiveBoardList(null);
 
-
-      // TODO: Send the updated board list to the server
+      // Send the updated board list to the server
+      updateAllBoardLists(updatedBoardLists);
     }
   }
 

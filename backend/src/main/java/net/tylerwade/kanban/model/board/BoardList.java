@@ -33,4 +33,14 @@ public class BoardList {
     @OneToMany(mappedBy = "boardList", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
     private List<ListItem> listItems;
 
+
+    @Override
+    public String toString() {
+        return "BoardList{" +
+                "boardListId=" + boardListId +
+                ", board=" + board +
+                ", name='" + name + '\'' +
+                ", position=" + position +
+                '}';
+    }
 }

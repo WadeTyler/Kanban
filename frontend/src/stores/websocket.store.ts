@@ -27,6 +27,12 @@ interface WebSocketStore {
   resetNewBoardList: () => void;
   createBoardList: (name: string) => void;
 
+  // Handling updating all board lists
+  updatedBoardLists: BoardList[] | null;
+  isUpdatingAllBoardLists: boolean;
+  resetUpdatedBoardLists: () => void;
+  updateAllBoardLists: (updatedBoardLists: BoardList[]) => void;
+
   // Handling updating board lists
   updatedBoardList: BoardList | null;
   isUpdatingBoardList: boolean;
@@ -108,7 +114,19 @@ export const useWebSocketStore = create<WebSocketStore>((set, get) => ({
         if (get().isUpdatingBoardList) {
           set({ isUpdatingBoardList: false });
         }
-      })
+      });
+
+      // Subscribe to receiving all updated board lists
+      client.subscribe(`/topic/boards/${boardId}/lists/updated/all`, (message) => {
+        const updatedBoardLists:BoardList[] = JSON.parse(message.body);
+        if (updatedBoardLists) {
+          console.log("Received Updated board lists: ", updatedBoardLists);
+          set({ updatedBoardLists: updatedBoardLists });
+        }
+        if (get().isUpdatingAllBoardLists) {
+          set({ isUpdatingAllBoardLists: false });
+        }
+      });
 
     }
 
@@ -203,6 +221,24 @@ export const useWebSocketStore = create<WebSocketStore>((set, get) => ({
     });
   },
 
+
+  // Handling updating all board lists
+  updatedBoardLists: null,
+  isUpdatingAllBoardLists: false,
+  resetUpdatedBoardLists: () => {
+    set({ updatedBoardLists: null });
+  },
+  updateAllBoardLists: async (updatedBoardLists: BoardList[]) => {
+    const boardId = get().boardId;
+    if (!boardId || get().isUpdatingAllBoardLists) return;
+    set({ isUpdatingAllBoardLists: true });
+
+    const client = get().client;
+    client.publish({
+      destination: `/app/boards/${boardId}/lists/update`,
+      body: JSON.stringify({updatedBoardLists})
+    });
+  },
   ///////////////////////////// NEW LIST ITEMS /////////////////////////////
 
   // Handling new list items

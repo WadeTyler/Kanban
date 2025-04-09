@@ -282,7 +282,7 @@ public class BoardService {
                 .orElseThrow(() -> new NotFoundException("Board not found."));
 
         // Find Status Type
-       BoardStatusType statusType = managedBoard.getStatusTypes().stream()
+        BoardStatusType statusType = managedBoard.getStatusTypes().stream()
                 .filter(type -> type.getId().equals(statusTypeId))
                 .findFirst()
                 .orElseThrow(() -> new NotFoundException("Status type not found."));
@@ -341,7 +341,7 @@ public class BoardService {
 
     @Transactional
     public BoardList deleteListItem(BoardList boardList, Long itemId) throws NotFoundException {
-       // get managed instance of board list
+        // get managed instance of board list
         BoardList managedBoardList = boardListRepository.findById(boardList.getBoardListId())
                 .orElseThrow(() -> new NotFoundException("Board list not found"));
 
@@ -358,4 +358,24 @@ public class BoardService {
 
         return managedBoardList;
     }
+
+    @Transactional
+    public BoardList[] updateBoardLists(Board board, UpdateAllBoardListsRequest updatedBoardListsRequests) throws NotFoundException {
+
+        List<BoardList> updatedBoardLists = new ArrayList<>();
+
+        for (BoardList updatedList : updatedBoardListsRequests.getUpdatedBoardLists()) {
+            // find existing list
+            BoardList existingList = boardListRepository.findById(updatedList.getBoardListId())
+                    .orElseThrow(() -> new NotFoundException("Board list not found"));
+
+            existingList.setPosition(updatedList.getPosition());
+            boardListRepository.save(existingList);
+            // Add to new array
+            updatedBoardLists.add(existingList);
+        }
+
+        return updatedBoardLists.toArray(new BoardList[0]);
+    }
+
 }

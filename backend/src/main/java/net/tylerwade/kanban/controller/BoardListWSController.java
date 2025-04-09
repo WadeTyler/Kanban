@@ -2,6 +2,7 @@ package net.tylerwade.kanban.controller;
 
 import net.tylerwade.kanban.dto.CreateBoardListRequest;
 import net.tylerwade.kanban.dto.CreateListItemRequest;
+import net.tylerwade.kanban.dto.UpdateAllBoardListsRequest;
 import net.tylerwade.kanban.dto.UpdateListItemRequest;
 import net.tylerwade.kanban.exception.BadRequestException;
 import net.tylerwade.kanban.exception.NotFoundException;
@@ -46,6 +47,16 @@ public class BoardListWSController {
         BoardList boardList = boardService.createBoardList(boardId, createBoardListRequest.getName(), user);
 
         this.messagingTemplate.convertAndSend("/topic/boards/" + boardId + "/lists/new", boardList);
+    }
+
+    @MessageMapping("/boards/{boardId}/lists/update")
+    public void updateBoardLists(@DestinationVariable String boardId, Principal principal, @Payload UpdateAllBoardListsRequest updatedBoardListsRequests) throws UnauthorizedException, NotFoundException {
+        User user = userService.getUser(principal.getName());
+        Board board = boardService.getBoardById(boardId, user);
+
+        BoardList[] updatedBoardLists = boardService.updateBoardLists(board, updatedBoardListsRequests);
+
+        this.messagingTemplate.convertAndSend("/topic/boards/" + boardId + "/lists/updated/all", updatedBoardLists);
     }
 
     // Endpoint to delete a list

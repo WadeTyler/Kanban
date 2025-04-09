@@ -31,7 +31,7 @@ public class Board {
     @JoinColumn(name = "owner_id")
     private User owner;
 
-    @OneToMany(mappedBy = "board", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "board", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<BoardList> lists;
 
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
