@@ -18,8 +18,8 @@ import ListItemSettings from "@/components/board/list-item/ListItemSettings";
 import EditStatusTypes from "@/components/board/EditStatusTypes";
 import {
   closestCenter,
-  DndContext,
-  DragOverlay,
+  DndContext, DragEndEvent,
+  DragOverlay, DragStartEvent,
   PointerSensor,
   useSensor,
   useSensors
@@ -169,19 +169,18 @@ const Page = () => {
     useSensor(PointerSensor)
   );
 
-  const handleDragStart = (event: any) => {
+  const handleDragStart = (event: DragStartEvent) => {
     setActiveBoardList(board?.lists?.find(list => list.boardListId === event.active.id) || null);
   }
 
-  const handleDragEnd = (event: any) => {
-
+  const handleDragEnd = (event: DragEndEvent) => {
     const {active, over} = event;
 
-    if (active.id !== over.id && board?.lists) {
+    if (active.id !== over?.id && board?.lists) {
       const boardLists = board.lists;
 
       const oldIndex = boardLists.indexOf(boardLists.find(list => list.boardListId === active.id) as BoardList_Type);
-      const newIndex = boardLists.indexOf(boardLists.find(list => list.boardListId === over.id) as BoardList_Type);
+      const newIndex = boardLists.indexOf(boardLists.find(list => list.boardListId === over?.id) as BoardList_Type);
 
       // Move the list
       const updatedBoardLists: BoardList_Type[] = arrayMove<BoardList_Type>(boardLists, oldIndex, newIndex).map((list, index) => {
