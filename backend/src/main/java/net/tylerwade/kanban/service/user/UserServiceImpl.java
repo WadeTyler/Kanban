@@ -20,12 +20,20 @@ public class UserServiceImpl implements UserService {
     public User createOrUpdateUser(OAuth2User principal) {
         User user = userRepository.findById(principal.getAttribute("sub")).orElse(new User());
 
-        user.setUserId(principal.getAttribute("sub"));
-        user.setEmail(principal.getAttribute("email"));
-        user.setName(principal.getAttribute("name"));
-        user.setProfilePicture(principal.getAttribute("picture"));
+        // If user details are not up to date, then update
+        if (user.getUserId() == null || !user.getUserId().equals(principal.getAttribute("sub"))
+                || user.getEmail() == null || !user.getEmail().equals(principal.getAttribute("email"))
+                || user.getName() == null || !user.getName().equals(principal.getAttribute("name"))
+                || user.getProfilePicture() == null || !user.getProfilePicture().equals(principal.getAttribute("picture"))) {
+            // Update details
+            user.setUserId(principal.getAttribute("sub"));
+            user.setEmail(principal.getAttribute("email"));
+            user.setName(principal.getAttribute("name"));
+            user.setProfilePicture(principal.getAttribute("picture"));
 
-        userRepository.save(user);
+            userRepository.save(user);
+        }
+
         return user;
     }
 
