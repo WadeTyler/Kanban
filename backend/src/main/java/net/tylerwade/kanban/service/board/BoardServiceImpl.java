@@ -257,6 +257,9 @@ public class BoardServiceImpl implements BoardService {
             throw new UnauthorizedException("You are not authorized to delete this board.");
         }
 
+        // Remove all members from the board
+        managedBoard.getMembers().clear();
+
         // Delete the board
         boardRepository.delete(managedBoard);
         return true;
