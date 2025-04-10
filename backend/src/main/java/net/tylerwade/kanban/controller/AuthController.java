@@ -2,7 +2,7 @@ package net.tylerwade.kanban.controller;
 
 import net.tylerwade.kanban.dto.APIResponse;
 import net.tylerwade.kanban.model.User;
-import net.tylerwade.kanban.service.UserService;
+import net.tylerwade.kanban.service.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

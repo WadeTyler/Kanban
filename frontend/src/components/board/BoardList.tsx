@@ -2,7 +2,7 @@
 import React, {FormEvent, useState} from 'react';
 import {RiAddLine} from "@remixicon/react";
 import {useWebSocketStore} from "@/stores/websocket.store";
-import {Board, BoardList as BoardListType} from "@/types/board.types";
+import {BoardList as BoardListType} from "@/types/board.types";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import ListItem from "@/components/board/list-item/ListItem";
 import CreateNewListItem from "@/components/board/list-item/CreateNewListItem";

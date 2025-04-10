@@ -1,17 +1,17 @@
-package net.tylerwade.kanban.controller;
+package net.tylerwade.kanban.controller.ListItemWSController;
 
-import net.tylerwade.kanban.dto.CreateBoardListRequest;
 import net.tylerwade.kanban.dto.CreateListItemRequest;
-import net.tylerwade.kanban.dto.UpdateAllBoardListsRequest;
 import net.tylerwade.kanban.dto.UpdateListItemRequest;
 import net.tylerwade.kanban.exception.BadRequestException;
 import net.tylerwade.kanban.exception.NotFoundException;
 import net.tylerwade.kanban.exception.UnauthorizedException;
+import net.tylerwade.kanban.model.User;
 import net.tylerwade.kanban.model.board.Board;
 import net.tylerwade.kanban.model.board.BoardList;
-import net.tylerwade.kanban.model.User;
-import net.tylerwade.kanban.service.BoardService;
-import net.tylerwade.kanban.service.UserService;
+import net.tylerwade.kanban.service.boardlist.BoardListService;
+import net.tylerwade.kanban.service.board.BoardService;
+import net.tylerwade.kanban.service.listitem.ListItemService;
+import net.tylerwade.kanban.service.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -22,52 +22,32 @@ import org.springframework.stereotype.Controller;
 import java.security.Principal;
 
 @Controller
-public class BoardListWSController {
+public class ListItemWSControllerImpl implements ListItemWSController {
+
     private final SimpMessagingTemplate messagingTemplate;
     private final UserService userService;
     private final BoardService boardService;
+    private final ListItemService listItemService;
+    private final BoardListService boardListService;
 
     @Autowired
-    public BoardListWSController(SimpMessagingTemplate messagingTemplate, UserService userService, BoardService boardService) {
+    public ListItemWSControllerImpl(SimpMessagingTemplate messagingTemplate, UserService userService, BoardService boardService, ListItemService listItemService, BoardListService boardListService) {
         this.messagingTemplate = messagingTemplate;
         this.userService = userService;
         this.boardService = boardService;
+        this.listItemService = listItemService;
+        this.boardListService = boardListService;
     }
 
-    @MessageMapping("/boards/{boardId}/lists/create")
-    public void createBoardList(@DestinationVariable String boardId, Principal principal, @Payload CreateBoardListRequest createBoardListRequest) throws UnauthorizedException, NotFoundException {
-
-        User user = userService.getUser(principal.getName());
-        if (createBoardListRequest.getName() == null || createBoardListRequest.getName().isEmpty()) {
-            // TODO: Handle empty name
-            return;
-        }
-
-        System.out.println("User " + user.getName() + " creating list " + createBoardListRequest.getName() + " on board " + boardId);
-        BoardList boardList = boardService.createBoardList(boardId, createBoardListRequest.getName(), user);
-
-        this.messagingTemplate.convertAndSend("/topic/boards/" + boardId + "/lists/new", boardList);
-    }
-
-    @MessageMapping("/boards/{boardId}/lists/update")
-    public void updateBoardLists(@DestinationVariable String boardId, Principal principal, @Payload UpdateAllBoardListsRequest updatedBoardListsRequests) throws UnauthorizedException, NotFoundException {
-        User user = userService.getUser(principal.getName());
-        Board board = boardService.getBoardById(boardId, user);
-
-        BoardList[] updatedBoardLists = boardService.updateBoardLists(board, updatedBoardListsRequests);
-
-        this.messagingTemplate.convertAndSend("/topic/boards/" + boardId + "/lists/updated/all", updatedBoardLists);
-    }
-
-    // Endpoint to delete a list
+    // Endpoint to create new list item
     @MessageMapping("/boards/{boardId}/lists/{listId}/items/create")
     public void createListItem(@DestinationVariable String boardId, @DestinationVariable Long listId, Principal principal, @Payload CreateListItemRequest createListItemRequest) throws NotFoundException, UnauthorizedException, BadRequestException {
         User user = userService.getUser(principal.getName());
         Board board = boardService.getBoardById(boardId, user);
 
-        BoardList boardList = getBoardListByIdFromBoard(board, listId);
+        BoardList boardList = boardListService.getBoardListByIdFromBoard(board, listId);
 
-        BoardList updatedBoardList = boardService.createNewListItem(boardList, createListItemRequest);
+        BoardList updatedBoardList = listItemService.createNewListItem(boardList, createListItemRequest);
 
         this.messagingTemplate.convertAndSend("/topic/boards/" + boardId + "/lists/updated", updatedBoardList);
     }
@@ -78,9 +58,9 @@ public class BoardListWSController {
         User user = userService.getUser(principal.getName());
         Board board = boardService.getBoardById(boardId, user);
 
-        BoardList boardList = getBoardListByIdFromBoard(board, listId);
+        BoardList boardList = boardListService.getBoardListByIdFromBoard(board, listId);
 
-        BoardList updatedBoardList = boardService.updateListItem(boardList, itemId, updateListItemRequest);
+        BoardList updatedBoardList = listItemService.updateListItem(boardList, itemId, updateListItemRequest);
 
         this.messagingTemplate.convertAndSend("/topic/boards/" + boardId + "/lists/updated", updatedBoardList);
     }
@@ -90,18 +70,11 @@ public class BoardListWSController {
         User user = userService.getUser(principal.getName());
         Board board = boardService.getBoardById(boardId, user);
 
-        BoardList boardList = getBoardListByIdFromBoard(board, listId);
+        BoardList boardList = boardListService.getBoardListByIdFromBoard(board, listId);
 
-        BoardList updatedBoardList = boardService.deleteListItem(boardList, itemId);
+        BoardList updatedBoardList = listItemService.deleteListItem(boardList, itemId);
 
         this.messagingTemplate.convertAndSend("/topic/boards/" + boardId + "/lists/updated", updatedBoardList);
     }
 
-    // Utility method to get a BoardList by its ID from a Board
-    private BoardList getBoardListByIdFromBoard(Board board, Long listId) throws NotFoundException {
-        return board.getLists().stream()
-                .filter(list -> list.getBoardListId().equals(listId))
-                .findFirst()
-                .orElseThrow(() -> new NotFoundException("List not found"));
-    }
 }

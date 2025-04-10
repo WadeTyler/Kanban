@@ -1,4 +1,4 @@
-package net.tylerwade.kanban.service;
+package net.tylerwade.kanban.service.user;
 
 import net.tylerwade.kanban.exception.UnauthorizedException;
 import net.tylerwade.kanban.model.User;
@@ -8,12 +8,12 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
 @Service
-public class UserService {
+public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
 
     @Autowired
-    public UserService(UserRepository userRepository) {
+    public UserServiceImpl(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
 

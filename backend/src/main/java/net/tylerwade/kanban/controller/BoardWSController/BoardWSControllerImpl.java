@@ -1,4 +1,4 @@
-package net.tylerwade.kanban.controller;
+package net.tylerwade.kanban.controller.BoardWSController;
 
 import net.tylerwade.kanban.dto.CreateUpdateStatusRequest;
 import net.tylerwade.kanban.exception.BadRequestException;
@@ -6,8 +6,8 @@ import net.tylerwade.kanban.exception.NotFoundException;
 import net.tylerwade.kanban.exception.UnauthorizedException;
 import net.tylerwade.kanban.model.User;
 import net.tylerwade.kanban.model.board.Board;
-import net.tylerwade.kanban.service.BoardService;
-import net.tylerwade.kanban.service.UserService;
+import net.tylerwade.kanban.service.board.BoardService;
+import net.tylerwade.kanban.service.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -21,7 +21,7 @@ import java.util.HashMap;
 import java.util.List;
 
 @Controller
-public class BoardWSController {
+public class BoardWSControllerImpl implements BoardWSController {
 
     private final SimpMessagingTemplate messagingTemplate;
     private final UserService userService;
@@ -30,7 +30,7 @@ public class BoardWSController {
     private final HashMap<String, List<User>> connectedUsers = new HashMap<>();
 
     @Autowired
-    public BoardWSController(SimpMessagingTemplate messagingTemplate, UserService userService, BoardService boardService) {
+    public BoardWSControllerImpl(SimpMessagingTemplate messagingTemplate, UserService userService, BoardService boardService) {
         this.messagingTemplate = messagingTemplate;
         this.userService = userService;
         this.boardService = boardService;
