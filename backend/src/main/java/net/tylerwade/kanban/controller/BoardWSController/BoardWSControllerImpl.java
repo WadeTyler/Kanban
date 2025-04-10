@@ -49,7 +49,6 @@ public class BoardWSControllerImpl implements BoardWSController {
 
         connectedUsers.put(boardId, users);
 
-
         // Output connected users
         this.messagingTemplate.convertAndSend("/topic/boards/" + boardId + "/connectedUsers", users);
     }

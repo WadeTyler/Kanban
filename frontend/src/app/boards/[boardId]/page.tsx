@@ -13,6 +13,7 @@ import ListItemSettings from "@/components/board/list-item/settings/ListItemSett
 import EditStatusTypes from "@/components/board/EditStatusTypes";
 import BoardPageHeader from "@/components/board/BoardPageHeader";
 import BoardLists from "@/components/board/board-list/BoardLists";
+import ErrorToast from "@/components/ErrorToast";
 
 const Page = () => {
   // Nav
@@ -24,6 +25,7 @@ const Page = () => {
   const [board, setBoard] = useState<Board | null>(null);
   const [isShowingSettings, setIsShowingSettings] = useState<boolean>(false);
   const [isEditingStatusTypes, setIsEditingStatusTypes] = useState<boolean>(false);
+  const [errorMessageQueue, setErrorMessageQueue] = useState<string[]>([]);
 
   // Store
   const {loadBoard, isLoadingBoard, loadBoardError} = useBoardStore();
@@ -39,7 +41,9 @@ const Page = () => {
     updatedBoard,
     resetUpdatedBoard,
     updatedBoardLists,
-    resetUpdatedBoardLists
+    resetUpdatedBoardLists,
+    webSocketErrorMessage,
+    resetWebSocketErrorMessage
   } = useWebSocketStore();
 
   const {resetBoardUI, focusedListItem, setFocusedListItem} = useBoardUIStore();
@@ -137,6 +141,23 @@ const Page = () => {
     }
   }, [updatedBoardLists]);
 
+  // Handle new Error Message
+  useEffect(() => {
+    if (webSocketErrorMessage) {
+      setErrorMessageQueue((prev) => [...prev, webSocketErrorMessage]);
+      resetWebSocketErrorMessage();
+
+      // Remove after 5 seconds
+      setTimeout(() => {
+        setErrorMessageQueue((prev) => {
+          const newQueue = [...prev];
+          newQueue.shift();
+          return newQueue;
+        })
+      }, 5000);
+    }
+  }, [webSocketErrorMessage]);
+
   ////////////////////////// RETURNS //////////////////////////
 
   if (isLoadingBoard) {
@@ -179,6 +200,15 @@ const Page = () => {
 
           </div>
         )}
+
+        {errorMessageQueue.length > 0 && (
+          <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 flex flex-col gap-2">
+            {errorMessageQueue.map((errorMessage, index) => (
+              <ErrorToast errorMessage={errorMessage} key={index} />
+            ))}
+          </div>
+        )}
+
       </div>
     </AuthProvider>
   )

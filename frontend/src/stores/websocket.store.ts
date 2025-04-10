@@ -15,6 +15,8 @@ interface WebSocketStore {
   connectedUsers: User[];
 
   isPending: boolean;
+  webSocketErrorMessage: string | null;
+  resetWebSocketErrorMessage: () => void;
 
   // Handling updating board
   updatedBoard: Board | null;
@@ -44,7 +46,6 @@ interface WebSocketStore {
   deleteBoard: () => void;
 }
 export const useWebSocketStore = create<WebSocketStore>((set, get) => ({
-
   boardId: null,
   setBoardId: (boardId: string | null) => {
     set({ boardId });
@@ -64,12 +65,24 @@ export const useWebSocketStore = create<WebSocketStore>((set, get) => ({
   connectedUsers: [],
 
   isPending: false,
+  webSocketErrorMessage: null,
+  resetWebSocketErrorMessage: () => {
+    set({ webSocketErrorMessage: null });
+  },
 
   connectToBoard: (boardId: string, router: AppRouterInstance) => {
     const client = get().client;
 
     client.onConnect = function () {
       announceConnected(client, boardId);
+
+      // Subscribe to errors
+      client.subscribe(`/user/queue/errors`, (message) => {
+        set({ webSocketErrorMessage: message.body });
+        if (get().isPending) {
+          set({ isPending: false });
+        }
+      });
 
       // Subscribe to connected users
       client.subscribe(`/topic/boards/${boardId}/connectedUsers`, (message) => {
@@ -78,7 +91,7 @@ export const useWebSocketStore = create<WebSocketStore>((set, get) => ({
           console.log("Connected users: ", connectedUsers);
           set({ connectedUsers: connectedUsers });
         }
-      })
+      });
 
       // Handle updated boards
       client.subscribe(`/topic/boards/${boardId}/updated`, (message) => {
@@ -91,7 +104,7 @@ export const useWebSocketStore = create<WebSocketStore>((set, get) => ({
         if (get().isPending) {
           set({ isPending: false });
         }
-      })
+      });
 
       // Subscribe to receiving new board lists
       client.subscribe(`/topic/boards/${boardId}/lists/new`, (message) => {
@@ -104,7 +117,7 @@ export const useWebSocketStore = create<WebSocketStore>((set, get) => ({
         if (get().isPending) {
           set({ isPending: false });
         }
-      })
+      });
 
       // Subscribe to receiving updated board lists
       client.subscribe(`/topic/boards/${boardId}/lists/updated`, (message) => {

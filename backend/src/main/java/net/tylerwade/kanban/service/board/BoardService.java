@@ -15,7 +15,6 @@ import java.util.List;
 @Service
 public interface BoardService {
 
-
     Iterable<Board> getAllUserBoards(User user);
 
     Board createBoard(CreateBoardRequest request, User user) throws BadRequestException;
