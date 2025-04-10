@@ -10,7 +10,6 @@ import net.tylerwade.kanban.service.board.BoardService;
 import net.tylerwade.kanban.service.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
-import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
@@ -37,7 +36,7 @@ public class BoardWSControllerImpl implements BoardWSController {
     }
 
     // Connect to board and output connected users
-    @MessageMapping("/boards/{boardId}/connect")
+    @Override
     public void connectedToBoard(@DestinationVariable String boardId, Principal principal) throws UnauthorizedException {
         User user = userService.getUser(principal.getName());
         System.out.println("User " + user.getName() + " connected to board " + boardId);
@@ -56,7 +55,7 @@ public class BoardWSControllerImpl implements BoardWSController {
     }
 
     // Disconnect from board
-    @MessageMapping("/boards/{boardId}/disconnect")
+    @Override
     public void disconnectFromBoard(@DestinationVariable String boardId, Principal principal) throws UnauthorizedException {
         User user = userService.getUser(principal.getName());
         System.out.println("User " + user.getName() + " disconnected from board " + boardId);
@@ -71,7 +70,7 @@ public class BoardWSControllerImpl implements BoardWSController {
     }
 
     // Add status type to board and output updated board
-    @MessageMapping("/boards/{boardId}/status-types/create")
+    @Override
     public void createStatusType(@DestinationVariable String boardId, Principal principal, @Payload CreateUpdateStatusRequest createUpdateStatusRequest) throws NotFoundException, UnauthorizedException, BadRequestException {
         User user = userService.getUser(principal.getName());
         Board board = boardService.getBoardById(boardId, user);
@@ -86,7 +85,7 @@ public class BoardWSControllerImpl implements BoardWSController {
 
 
     // Remove status type and output updated board
-    @MessageMapping("/boards/{boardId}/status-types/{statusTypeId}/delete")
+    @Override
     public void deleteStatusType(@DestinationVariable String boardId, @DestinationVariable Long statusTypeId, Principal principal) throws NotFoundException, UnauthorizedException {
         User user = userService.getUser(principal.getName());
         Board board = boardService.getBoardById(boardId, user);
@@ -97,7 +96,7 @@ public class BoardWSControllerImpl implements BoardWSController {
         this.messagingTemplate.convertAndSend("/topic/boards/" + boardId + "/updated", updatedBoard);
     }
 
-    @MessageMapping("/boards/{boardId}/status-types/{statusTypeId}/update")
+    @Override
     public void updateStatusType(@DestinationVariable String boardId, @DestinationVariable Long statusTypeId, Principal principal, @Payload CreateUpdateStatusRequest createUpdateStatusRequest) throws NotFoundException, UnauthorizedException, BadRequestException {
         User user = userService.getUser(principal.getName());
         Board board = boardService.getBoardById(boardId, user);
@@ -110,4 +109,19 @@ public class BoardWSControllerImpl implements BoardWSController {
         this.messagingTemplate.convertAndSend("/topic/boards/" + boardId + "/updated", updatedBoard);
     }
 
+    @Override
+    public void deleteBoard(String boardId, Principal principal) throws NotFoundException, UnauthorizedException {
+        User user = userService.getUser(principal.getName());
+        Board board = boardService.getBoardById(boardId, user);
+
+        System.out.println("Here");
+
+        Boolean isDeleted = boardService.deleteBoard(board, user);
+
+        System.out.println(isDeleted);
+
+        if (isDeleted) {
+            this.messagingTemplate.convertAndSend("/topic/boards/" + boardId + "/deleted", "Board deleted successfully");
+        }
+    }
 }

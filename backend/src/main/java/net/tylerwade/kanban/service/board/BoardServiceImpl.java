@@ -246,4 +246,19 @@ public class BoardServiceImpl implements BoardService {
         return managedBoard;
     }
 
+    @Transactional
+    public Boolean deleteBoard(Board board, User user) throws UnauthorizedException, NotFoundException {
+
+        Board managedBoard = boardRepository.findById(board.getBoardId())
+                .orElseThrow(() -> new NotFoundException("Board not found."));
+
+        // Verify is owner of board
+        if (!managedBoard.getOwner().getUserId().equals(user.getUserId())) {
+            throw new UnauthorizedException("You are not authorized to delete this board.");
+        }
+
+        // Delete the board
+        boardRepository.delete(managedBoard);
+        return true;
+    }
 }

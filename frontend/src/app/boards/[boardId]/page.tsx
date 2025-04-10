@@ -3,7 +3,7 @@ import React, {useEffect, useState} from 'react';
 import useBoardStore from "@/stores/board.store";
 import useAuthStore from "@/stores/auth.store";
 import {Board} from "@/types/board.types";
-import {useParams} from "next/navigation";
+import {useParams, useRouter} from "next/navigation";
 import AuthProvider from "@/providers/AuthProvider";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import {useWebSocketStore} from "@/stores/websocket.store";
@@ -18,6 +18,7 @@ const Page = () => {
   // Nav
   const params = useParams<{ boardId: string; }>()
   const boardId = params.boardId;
+  const router = useRouter();
 
   // States
   const [board, setBoard] = useState<Board | null>(null);
@@ -51,7 +52,7 @@ const Page = () => {
         if (board) {
           setBoard(board);
           setBoardId(boardId);
-          connectToBoard(board.boardId);
+          connectToBoard(board.boardId, router);
         }
       }).catch(() => {
         setBoardId(null);

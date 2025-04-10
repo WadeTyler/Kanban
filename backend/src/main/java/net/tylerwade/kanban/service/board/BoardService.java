@@ -36,4 +36,5 @@ public interface BoardService {
 
     Board updateStatusType(Board board, Long statusTypeId, CreateUpdateStatusRequest request) throws BadRequestException, NotFoundException;
 
+    Boolean deleteBoard(Board board, User user) throws UnauthorizedException, NotFoundException;
 }

@@ -3,13 +3,14 @@ import {Client} from "@stomp/stompjs";
 import {BROKER_URL} from "@/environment";
 import {Board, BoardList, CreateUpdateStatusTypeRequest, UpdateListItemRequest} from "@/types/board.types";
 import {User} from "@/types/auth.types";
+import {AppRouterInstance} from "next/dist/shared/lib/app-router-context.shared-runtime";
 
 interface WebSocketStore {
   boardId: string | null;
   setBoardId: (boardId: string | null) => void;
 
   client: Client;
-  connectToBoard: (boardId: string) => void;
+  connectToBoard: (boardId: string, router: AppRouterInstance) => void;
   disconnectFromBoard: (boardId: string) => void;
   connectedUsers: User[];
 
@@ -39,6 +40,8 @@ interface WebSocketStore {
   createListItem: (title: string, listId: number) => Promise<void>;
   updateListItem: (updateListItemRequest: UpdateListItemRequest, listId: number, listItemId: number) => Promise<void>;
   deleteListItem: (listId: number, listItemId: number) => Promise<void>;
+
+  deleteBoard: () => void;
 }
 export const useWebSocketStore = create<WebSocketStore>((set, get) => ({
 
@@ -62,7 +65,7 @@ export const useWebSocketStore = create<WebSocketStore>((set, get) => ({
 
   isPending: false,
 
-  connectToBoard: (boardId: string) => {
+  connectToBoard: (boardId: string, router: AppRouterInstance) => {
     const client = get().client;
 
     client.onConnect = function () {
@@ -126,6 +129,15 @@ export const useWebSocketStore = create<WebSocketStore>((set, get) => ({
         if (get().isPending) {
           set({ isPending: false });
         }
+      });
+
+      client.subscribe(`/topic/boards/${boardId}/deleted`, (message) => {
+        if (get().isPending) {
+          set({ isPending: false });
+        }
+
+        console.log("Board deleted: ", message.body);
+        router.push("/boards?boardDeleted=true");
       });
 
     }
@@ -282,6 +294,18 @@ export const useWebSocketStore = create<WebSocketStore>((set, get) => ({
 
     client.publish({
       destination: `/app/boards/${boardId}/lists/${listId}/items/${listItemId}/delete`,
+      body: JSON.stringify({})
+    });
+  },
+
+  deleteBoard: () => {
+    const client = get().client;
+    const boardId = get().boardId;
+
+    if (!client.active || get().isPending || !boardId) return;
+
+    client.publish({
+      destination: `/app/boards/${boardId}/delete`,
       body: JSON.stringify({})
     });
   }

@@ -28,4 +28,7 @@ public interface BoardWSController {
 
     @MessageMapping("/boards/{boardId}/status-types/{statusTypeId}/update")
     void updateStatusType(@DestinationVariable String boardId, @DestinationVariable Long statusTypeId, Principal principal, @Payload CreateUpdateStatusRequest createUpdateStatusRequest) throws NotFoundException, UnauthorizedException, BadRequestException;
+
+    @MessageMapping("/boards/{boardId}/delete")
+    void deleteBoard(@DestinationVariable String boardId, Principal principal) throws NotFoundException, UnauthorizedException;
 }

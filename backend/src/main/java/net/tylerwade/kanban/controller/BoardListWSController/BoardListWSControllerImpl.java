@@ -35,7 +35,7 @@ public class BoardListWSControllerImpl implements BoardListWSController {
         this.boardListService = boardListService;
     }
 
-    @MessageMapping("/boards/{boardId}/lists/create")
+    @Override
     public void createBoardList(@DestinationVariable String boardId, Principal principal, @Payload CreateBoardListRequest createBoardListRequest) throws UnauthorizedException, NotFoundException, BadRequestException {
 
         User user = userService.getUser(principal.getName());
@@ -47,7 +47,7 @@ public class BoardListWSControllerImpl implements BoardListWSController {
         this.messagingTemplate.convertAndSend("/topic/boards/" + boardId + "/lists/new", boardList);
     }
 
-    @MessageMapping("/boards/{boardId}/lists/update")
+    @Override
     public void updateBoardLists(@DestinationVariable String boardId, Principal principal, @Payload UpdateAllBoardListsRequest updatedBoardListsRequests) throws UnauthorizedException, NotFoundException {
         User user = userService.getUser(principal.getName());
         Board board = boardService.getBoardById(boardId, user);

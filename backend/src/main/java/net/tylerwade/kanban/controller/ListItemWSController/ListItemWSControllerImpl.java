@@ -40,7 +40,7 @@ public class ListItemWSControllerImpl implements ListItemWSController {
     }
 
     // Endpoint to create new list item
-    @MessageMapping("/boards/{boardId}/lists/{listId}/items/create")
+    @Override
     public void createListItem(@DestinationVariable String boardId, @DestinationVariable Long listId, Principal principal, @Payload CreateListItemRequest createListItemRequest) throws NotFoundException, UnauthorizedException, BadRequestException {
         User user = userService.getUser(principal.getName());
         Board board = boardService.getBoardById(boardId, user);
@@ -53,7 +53,7 @@ public class ListItemWSControllerImpl implements ListItemWSController {
     }
 
     // Endpoint to update a list item
-    @MessageMapping("/boards/{boardId}/lists/{listId}/items/{itemId}/update")
+    @Override
     public void updateListItem(@DestinationVariable String boardId, @DestinationVariable Long listId, @DestinationVariable Long itemId, Principal principal, @Payload UpdateListItemRequest updateListItemRequest) throws UnauthorizedException, NotFoundException, BadRequestException {
         User user = userService.getUser(principal.getName());
         Board board = boardService.getBoardById(boardId, user);
@@ -65,7 +65,7 @@ public class ListItemWSControllerImpl implements ListItemWSController {
         this.messagingTemplate.convertAndSend("/topic/boards/" + boardId + "/lists/updated", updatedBoardList);
     }
 
-    @MessageMapping("/boards/{boardId}/lists/{listId}/items/{itemId}/delete")
+    @Override
     public void deleteListItem(@DestinationVariable String boardId, @DestinationVariable Long listId, @DestinationVariable Long itemId, Principal principal) throws NotFoundException, UnauthorizedException {
         User user = userService.getUser(principal.getName());
         Board board = boardService.getBoardById(boardId, user);

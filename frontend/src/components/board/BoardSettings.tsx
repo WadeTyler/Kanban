@@ -1,12 +1,13 @@
 import React, {useState} from 'react';
 import {Board} from "@/types/board.types";
-import {RiLogoutBoxLine, RiTimelineView, RiUserLine} from "@remixicon/react";
+import {RiDeleteBin3Line, RiLogoutBoxLine, RiTimelineView, RiUserLine} from "@remixicon/react";
 import Link from "next/link";
 import useBoardStore from "@/stores/board.store";
 import {useRouter} from "next/navigation";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import useAuthStore from "@/stores/auth.store";
 import ConfirmPanel from "@/components/ConfirmPanel";
+import {useWebSocketStore} from "@/stores/websocket.store";
 
 const BoardSettings = ({board, editStatusTypes}: {
   board: Board;
@@ -18,10 +19,12 @@ const BoardSettings = ({board, editStatusTypes}: {
 
   // Stores
   const {leaveBoard, leaveBoardError, isLeavingBoard} = useBoardStore();
+  const {deleteBoard, isPending} = useWebSocketStore();
   const {user} = useAuthStore();
 
   // States
   const [isConfirmingLeaveBoard, setIsConfirmingLeaveBoard] = useState<boolean>(false);
+  const [isConfirmingDeleteBoard, setIsConfirmingDeleteBoard] = useState<boolean>(false);
 
   // Functions
   const handleLeaveBoard = async () => {
@@ -34,20 +37,25 @@ const BoardSettings = ({board, editStatusTypes}: {
           router.push("/boards");
         }
       });
+  }
 
+  const handleDeleteBoard = async () => {
+    if (!board || isPending) return;
 
+    deleteBoard();
   }
 
   return (
     <div
-      className="absolute bg-secondary-dark w-flit h-fit right-0 top-full mt-2 rounded-md shadow-xl text-white p-4 duration-200 border border-transparent hover:border-accent flex flex-col gap-2">
+      className="absolute bg-secondary-dark w-fit h-fit right-0 top-full mt-2 rounded-md shadow-xl text-white p-4 duration-200 border border-transparent hover:border-accent flex flex-col gap-2">
       <Link href={`/boards/${board.boardId}/members`} className="hover-btn2 justify-start!"><RiUserLine/>Members</Link>
       <button className="hover-btn2 justify-start!" onClick={editStatusTypes}><RiTimelineView/>Status Types</button>
 
       <hr className="border border-secondary"/>
 
       {board.owner.userId !== user?.userId && (
-        <button className="hover-btn2 text-danger" disabled={isLeavingBoard} onClick={() => setIsConfirmingLeaveBoard(true)}>
+        <button className="hover-btn2 text-danger" disabled={isLeavingBoard}
+                onClick={() => setIsConfirmingLeaveBoard(true)}>
           {!isLeavingBoard
             ?
             <>
@@ -63,7 +71,39 @@ const BoardSettings = ({board, editStatusTypes}: {
         </button>
       )}
 
-      {isConfirmingLeaveBoard && <ConfirmPanel headerText={"You are about to leave this board."} bodyText={`You are about to leave the board '${board.name}'. Once you leave this board you will no longer be able to access it. Are you sure you want to leave this board?`} confirmFunction={handleLeaveBoard} cancelFunction={() => setIsConfirmingLeaveBoard(false)} isPending={isLeavingBoard} errorMsg={leaveBoardError}/>}
+      {board.owner.userId === user?.userId && (
+        <button className="danger-btn whitespace-nowrap" onClick={() => setIsConfirmingDeleteBoard(true)}>
+          {!isPending ? (
+            <>
+              <RiDeleteBin3Line/>
+              Delete Board
+            </>
+          ) : (
+            <>
+              <LoadingSpinner/>
+              <span>Deleting...</span>
+            </>
+          )}
+        </button>
+      )}
+
+      {isConfirmingLeaveBoard &&
+        <ConfirmPanel
+          headerText={"You are about to leave this board."}
+          bodyText={`You are about to leave the board '${board.name}'. Once you leave this board you will no longer be able to access it. Are you sure you want to leave this board?`}
+          confirmFunction={handleLeaveBoard}
+          cancelFunction={() => setIsConfirmingLeaveBoard(false)}
+          isPending={isLeavingBoard} errorMsg={leaveBoardError}
+        />
+      }
+
+      {isConfirmingDeleteBoard &&
+        <ConfirmPanel
+          headerText={"You are about to delete this board."}
+          bodyText={`You are about to delete the board '${board.name}'. All data on this board will be permanently deleted. This action is irreversible. Are you sure you want to do this?`}
+          confirmFunction={handleDeleteBoard} cancelFunction={() => setIsConfirmingDeleteBoard(false)}
+        />
+      }
 
     </div>
   );
