@@ -1,7 +1,7 @@
 import {create} from 'zustand';
 import {User} from "@/types/auth.types";
 import {APIResponse} from "@/types/APIResponse.types";
-import {http} from "@/lib/http.config";
+import {http} from "@/lib/config/http.config";
 
 interface AuthStore {
   user: User | null;

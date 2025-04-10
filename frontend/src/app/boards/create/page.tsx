@@ -8,7 +8,6 @@ import LoadingSpinner from "@/components/LoadingSpinner";
 import {useRouter} from "next/navigation";
 
 const Page = () => {
-
   // Navigation
   const router = useRouter();
 
@@ -89,7 +88,6 @@ const Page = () => {
             {createBoardError && (
               <p className="text-danger text-sm">{createBoardError}</p>
             )}
-
 
           </form>
 

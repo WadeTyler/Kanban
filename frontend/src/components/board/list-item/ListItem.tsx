@@ -2,7 +2,7 @@
 import {ListItem as ListItemType} from "@/types/board.types";
 import {useBoardUIStore} from "@/stores/board-ui.store";
 import Label from "@/components/Label";
-import {isOverdue} from "@/lib/util";
+import {isOverdue} from "@/lib/util/util";
 import StatusType from "@/components/board/StatusType";
 
 const ListItem = ({listItem}: {

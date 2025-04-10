@@ -10,12 +10,12 @@ const CreateNewListItem = ({boardList}: {
   const [title, setTitle] = useState<string>("");
 
   // Stores
-  const {isUpdatingBoardList, createListItem} = useWebSocketStore();
+  const {isPending, createListItem} = useWebSocketStore();
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
 
-    if (isUpdatingBoardList || !title) return;
+    if (isPending || !title) return;
 
     await createListItem(title, boardList.boardListId).then(() => {
       setTitle("");
@@ -26,7 +26,7 @@ const CreateNewListItem = ({boardList}: {
     <div className="w-full flex flex-col gap-2">
 
       <form onSubmit={handleSubmit}>
-        <input type="text" className="input-bar border-accent! text-accent!" disabled={isUpdatingBoardList} placeholder="Create new Item"
+        <input type="text" className="input-bar border-accent! text-accent!" disabled={isPending} placeholder="Create new Item"
                value={title}
                onChange={(e) => setTitle(e.target.value)}
         />

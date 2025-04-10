@@ -1,7 +1,7 @@
 import React from 'react';
 import {User} from "@/types/auth.types";
 
-const UserCard = ({user, cn}: {
+const ListItemUserCard = ({user, cn}: {
   user: User;
   cn?: string;
 }) => {
@@ -13,4 +13,4 @@ const UserCard = ({user, cn}: {
   );
 };
 
-export default UserCard;
+export default ListItemUserCard;

@@ -2,7 +2,7 @@ import {create} from 'zustand';
 import {Board, CreateBoardRequest} from "@/types/board.types";
 import {APIResponse} from "@/types/APIResponse.types";
 import {User} from "@/types/auth.types";
-import {http} from "@/lib/http.config";
+import {http} from "@/lib/config/http.config";
 import ResponseError from "@/lib/http/ResponseError";
 
 interface BoardStore {

@@ -13,29 +13,27 @@ interface WebSocketStore {
   disconnectFromBoard: (boardId: string) => void;
   connectedUsers: User[];
 
+  isPending: boolean;
+
   // Handling updating board
   updatedBoard: Board | null;
   resetUpdatedBoard: () => void;
-  isUpdatingBoard: boolean;
   createStatusType: (createStatusTypeRequest: CreateUpdateStatusTypeRequest) => Promise<void>;
   deleteStatusType: (statusTypeId: number) => Promise<void>;
   updateStatusType: (statusTypeId: number, updateStatusTypeRequest: CreateUpdateStatusTypeRequest) => Promise<void>;
 
   // Handling new Board lists
-  isCreatingNewBoardList: boolean;
   newBoardList: BoardList | null;
   resetNewBoardList: () => void;
   createBoardList: (name: string) => void;
 
   // Handling updating all board lists
   updatedBoardLists: BoardList[] | null;
-  isUpdatingAllBoardLists: boolean;
   resetUpdatedBoardLists: () => void;
   updateAllBoardLists: (updatedBoardLists: BoardList[]) => void;
 
   // Handling updating board lists
   updatedBoardList: BoardList | null;
-  isUpdatingBoardList: boolean;
   resetUpdatedBoardList: () => void;
 
   createListItem: (title: string, listId: number) => Promise<void>;
@@ -62,6 +60,8 @@ export const useWebSocketStore = create<WebSocketStore>((set, get) => ({
 
   connectedUsers: [],
 
+  isPending: false,
+
   connectToBoard: (boardId: string) => {
     const client = get().client;
 
@@ -85,8 +85,8 @@ export const useWebSocketStore = create<WebSocketStore>((set, get) => ({
           set({ updatedBoard: updatedBoard });
         }
 
-        if (get().isUpdatingBoard) {
-          set({ isUpdatingBoard: false });
+        if (get().isPending) {
+          set({ isPending: false });
         }
       })
 
@@ -98,8 +98,8 @@ export const useWebSocketStore = create<WebSocketStore>((set, get) => ({
           set({ newBoardList: newBoardList });
         }
 
-        if (get().isCreatingNewBoardList) {
-          set({ isCreatingNewBoardList: false });
+        if (get().isPending) {
+          set({ isPending: false });
         }
       })
 
@@ -111,8 +111,8 @@ export const useWebSocketStore = create<WebSocketStore>((set, get) => ({
           set({ updatedBoardList: updatedBoardList });
         }
 
-        if (get().isUpdatingBoardList) {
-          set({ isUpdatingBoardList: false });
+        if (get().isPending) {
+          set({ isPending: false });
         }
       });
 
@@ -123,8 +123,8 @@ export const useWebSocketStore = create<WebSocketStore>((set, get) => ({
           console.log("Received Updated board lists: ", updatedBoardLists);
           set({ updatedBoardLists: updatedBoardLists });
         }
-        if (get().isUpdatingAllBoardLists) {
-          set({ isUpdatingAllBoardLists: false });
+        if (get().isPending) {
+          set({ isPending: false });
         }
       });
 
@@ -154,14 +154,13 @@ export const useWebSocketStore = create<WebSocketStore>((set, get) => ({
   resetUpdatedBoard: () => {
     set({ updatedBoard: null });
   },
-  isUpdatingBoard: false,
 
   // Create a new status type
   createStatusType: async (createStatusTypeRequest: CreateUpdateStatusTypeRequest) => {
     const boardId = get().boardId;
-    if (!boardId || get().isUpdatingBoard) return;
+    if (!boardId || get().isPending) return;
 
-    set({ isUpdatingBoard: true });
+    set({ isPending: true });
 
     const client = get().client;
 
@@ -174,9 +173,9 @@ export const useWebSocketStore = create<WebSocketStore>((set, get) => ({
   // Delete a status type
   deleteStatusType: async (statusTypeId: number) => {
     const boardId = get().boardId;
-    if (!boardId || get().isUpdatingBoard) return;
+    if (!boardId || get().isPending) return;
 
-    set({ isUpdatingBoard: true });
+    set({ isPending: true });
 
     const client = get().client;
     client.publish({
@@ -186,9 +185,9 @@ export const useWebSocketStore = create<WebSocketStore>((set, get) => ({
 
   updateStatusType: async (statusTypeId: number, updateStatusTypeRequest: CreateUpdateStatusTypeRequest) => {
     const boardId = get().boardId;
-    if (!boardId || get().isUpdatingBoard) return;
+    if (!boardId || get().isPending) return;
 
-    set({ isUpdatingBoard: true });
+    set({ isPending: true });
 
     const client = get().client;
     client.publish({
@@ -199,7 +198,6 @@ export const useWebSocketStore = create<WebSocketStore>((set, get) => ({
 
   ///////////////////////////// NEW BOARD LISTS /////////////////////////////
 
-  isCreatingNewBoardList: false,
   // Used to receive new board lists
   newBoardList: null,
   resetNewBoardList: () => {
@@ -209,9 +207,9 @@ export const useWebSocketStore = create<WebSocketStore>((set, get) => ({
   // Create a new board list and publish to web socket
   createBoardList: (name: string) => {
     const boardId = get().boardId;
-    if (!boardId || get().isCreatingNewBoardList) return;
+    if (!boardId || get().isPending) return;
 
-    set({ isCreatingNewBoardList: true });
+    set({ isPending: true });
 
     const client = get().client;
 
@@ -224,14 +222,13 @@ export const useWebSocketStore = create<WebSocketStore>((set, get) => ({
 
   // Handling updating all board lists
   updatedBoardLists: null,
-  isUpdatingAllBoardLists: false,
   resetUpdatedBoardLists: () => {
     set({ updatedBoardLists: null });
   },
   updateAllBoardLists: async (updatedBoardLists: BoardList[]) => {
     const boardId = get().boardId;
-    if (!boardId || get().isUpdatingAllBoardLists) return;
-    set({ isUpdatingAllBoardLists: true });
+    if (!boardId || get().isPending) return;
+    set({ isPending: true });
 
     const client = get().client;
     client.publish({
@@ -242,19 +239,16 @@ export const useWebSocketStore = create<WebSocketStore>((set, get) => ({
   ///////////////////////////// NEW LIST ITEMS /////////////////////////////
 
   // Handling new list items
-  isUpdatingBoardList: false,
-
   updatedBoardList: null,
-
   resetUpdatedBoardList: () => {
     set({ updatedBoardList: null });
   },
 
   createListItem: async (title: string, listId: number) => {
     const boardId = get().boardId;
-    if (!boardId || get().isUpdatingBoardList) return;
+    if (!boardId || get().isPending) return;
 
-    set({ isUpdatingBoardList: true });
+    set({ isPending: true });
 
     const client = get().client;
 
@@ -266,9 +260,9 @@ export const useWebSocketStore = create<WebSocketStore>((set, get) => ({
 
   updateListItem: async (updateListItemRequest: UpdateListItemRequest, listId: number, listItemId: number) => {
     const boardId = get().boardId;
-    if (!boardId || get().isUpdatingBoardList) return;
+    if (!boardId || get().isPending) return;
 
-    set({ isUpdatingBoardList: true });
+    set({ isPending: true });
 
     const client = get().client;
 
@@ -280,9 +274,9 @@ export const useWebSocketStore = create<WebSocketStore>((set, get) => ({
 
   deleteListItem: async (listId: number, listItemId: number) => {
     const boardId = get().boardId;
-    if (!boardId || get().isUpdatingBoardList) return;
+    if (!boardId || get().isPending) return;
 
-    set({ isUpdatingBoardList: true });
+    set({ isPending: true });
 
     const client = get().client;
 
