@@ -78,7 +78,7 @@ public class Board {
      * This is a many-to-many relationship with the User entity.
      * A join table "board_members" is used to map the relationship.
      */
-    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "board_members",
             joinColumns = @JoinColumn(name = "board_id"),
             inverseJoinColumns = @JoinColumn(name = "user_id"),
