@@ -23,7 +23,7 @@ const BoardPageHeader = ({
   const {connectedUsers} = useWebSocketStore();
 
   return (
-    <div className="flex items-center justify-between gap-4 w-full">
+    <div className="flex items-center justify-between gap-4 w-full bg-black/50 p-4 rounded-md">
       <div className="flex items-center gap-4 relative group">
         <div className="flex flex-col justify-center">
           <h1 className="text-xl font-semibold text-accent">{board.name}</h1>
