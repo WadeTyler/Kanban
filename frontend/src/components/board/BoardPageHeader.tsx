@@ -27,7 +27,7 @@ const BoardPageHeader = ({
       <div className="flex items-center gap-4 relative group">
         <div className="flex flex-col justify-center">
           <h1 className="text-xl font-semibold text-accent">{board.name}</h1>
-          <div className="text-xs text-secondary group relative">
+          <div className="text-xs text-secondary-dark group relative">
             <span>{board.description && board.description.length > 80 ? board.description.substring(0, 77) + "..." : board.description ? board.description : "No Description"}</span>
           </div>
         </div>
