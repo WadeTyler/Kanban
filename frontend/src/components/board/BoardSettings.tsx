@@ -59,7 +59,7 @@ const BoardSettings = ({board, editStatusTypes, closeSettings, editBoardDetails}
   return (
     <ClickAwayListener onClickAway={closeSettings}>
       <div
-        className="absolute bg-secondary-dark w-fit h-fit right-0 top-full mt-2 rounded-md shadow-xl text-white p-4 duration-200 border border-transparent hover:border-accent flex flex-col gap-2">
+        className="absolute bg-secondary-dark w-fit h-fit right-0 top-full mt-2 rounded-md shadow-xl text-white p-4 duration-200 border border-transparent hover:border-accent flex flex-col gap-2 z-40">
         {isOwner && (
           <>
             <button className="hover-btn2 justify-start!" onClick={editBoardDetails}>
