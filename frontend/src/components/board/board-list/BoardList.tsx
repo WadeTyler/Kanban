@@ -43,11 +43,12 @@ export const BoardList = ({boardList}: {
 
   return (
     <div
-      className="min-w-72 min-h-24 h-fit max-h-full flex flex-col p-2 gap-4 bg-secondary-dark shadow-xl hover:shadow-2xl rounded-md border-secondary-dark border hover:border-accent duration-200 "
+      className="min-w-72 w-72 min-h-24 h-fit max-h-full flex flex-col gap-4 bg-secondary-dark shadow-xl hover:shadow-2xl rounded-md border-secondary-dark border hover:border-accent duration-200 overflow-y-scroll overflow-x-hidden relative"
       style={style}
     >
 
-      <div className="cursor-pointer" ref={setNodeRef} {...attributes} {...listeners} onContextMenu={toggleContextMenu}>
+      <div className="cursor-pointer sticky top-0 left-0 w-full h-12 bg-secondary-dark p-4 z-20"
+           ref={setNodeRef} {...attributes} {...listeners} onContextMenu={toggleContextMenu}>
         <h2 className="text-white font-semibold text-lg">{boardList.name}</h2>
       </div>
 
@@ -64,16 +65,19 @@ export const BoardList = ({boardList}: {
         </ClickAwayListener>
       )}
 
-      {boardList.listItems?.sort((a, b) => a.position - b.position)
-        .map((listItem) => (
-          <ListItem key={listItem.listItemId} listItem={listItem}/>
-        ))}
+      <div className="flex flex-col gap-4 p-2">
+        {boardList.listItems?.sort((a, b) => a.position - b.position)
+          .map((listItem) => (
+            <ListItem key={listItem.listItemId} listItem={listItem}/>
+          ))}
 
-      <CreateNewListItem boardList={boardList}/>
+        <CreateNewListItem boardList={boardList}/>
+      </div>
 
       {isEditingName && (
         <ScreenPanelOverlay>
-          <EditName currentName={boardList.name} close={() => setIsEditingName(false)} boardListId={boardList.boardListId}/>
+          <EditName currentName={boardList.name} close={() => setIsEditingName(false)}
+                    boardListId={boardList.boardListId}/>
         </ScreenPanelOverlay>
       )}
 
