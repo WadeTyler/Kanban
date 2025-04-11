@@ -10,12 +10,18 @@ const EditName = ({currentName, boardListId, close}: {
 }) => {
 
   const [newName, setNewName] = useState(currentName);
+  const isChanged = newName !== currentName;
 
   const {updateBoardList, isPending} = useWebSocketStore();
 
   const handleSubmit = (event: FormEvent) => {
     event.preventDefault();
-    if (isPending || newName === currentName || !newName) {
+    if (isPending) {
+      return;
+    }
+
+    if (!isChanged) {
+      close();
       return;
     }
 
@@ -48,8 +54,17 @@ const EditName = ({currentName, boardListId, close}: {
           </div>
 
           <div className="flex justify-end items-center p-4 bg-darker gap-4">
-            <button type="button" className="danger-btn" onClick={close}>Cancel</button>
-            <button type="submit" className="submit-btn">Change Name</button>
+            <button type="button"
+                    className="danger-btn text-white! border-white! hover:text-danger! hover:border-danger!"
+                    onClick={close}
+            >
+              Cancel
+            </button>
+            <button type="submit"
+                    className="submit-btn text-white! border-white! hover:text-accent! hover:border-accent!"
+            >
+              Change Name
+            </button>
           </div>
         </form>
       </div>
