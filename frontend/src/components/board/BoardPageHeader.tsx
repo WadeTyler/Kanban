@@ -28,7 +28,7 @@ const BoardPageHeader = ({board, isShowingSettings, setIsShowingSettings, setIsE
                            onClick={() => setIsShowingSettings((prev: boolean) => !prev)}/>
           {!isShowingSettings && <Label text={"Settings"}/>}
           {isShowingSettings && board && (
-            <BoardSettings board={board} editStatusTypes={() => setIsEditingStatusTypes(true)}/>)
+            <BoardSettings board={board} editStatusTypes={() => setIsEditingStatusTypes(true)} closeSettings={() => setIsShowingSettings(false)}/>)
           }
         </div>
 
