@@ -2,6 +2,7 @@ package net.tylerwade.kanban.service.boardlist;
 
 import jakarta.transaction.Transactional;
 import net.tylerwade.kanban.dto.UpdateAllBoardListsRequest;
+import net.tylerwade.kanban.dto.UpdateBoardListRequest;
 import net.tylerwade.kanban.exception.BadRequestException;
 import net.tylerwade.kanban.exception.NotFoundException;
 import net.tylerwade.kanban.model.User;
@@ -74,6 +75,33 @@ public class BoardListServiceImpl implements BoardListService {
         }
 
         return updatedBoardLists.toArray(new BoardList[0]);
+    }
+
+    @Override
+    @Transactional
+    public BoardList updateBoardList(Board board, Long listId, UpdateBoardListRequest updateBoardListRequest, User user) throws BadRequestException, NotFoundException {
+        // Check fields
+        if (updateBoardListRequest.getName() == null || updateBoardListRequest.getName().isEmpty()) {
+            throw new BadRequestException("List name cannot be null or empty.");
+        }
+
+        // Get managed board
+        Board managedBoard = boardRepository.findById(board.getBoardId())
+                .orElseThrow(() -> new NotFoundException("Board not found."));
+
+        // Find existing list
+        BoardList targetList = managedBoard.getLists().stream()
+                .filter(list -> list.getBoardListId().equals(listId))
+                .findFirst()
+                .orElseThrow(() -> new NotFoundException("Board list not found."));
+
+        // Update values
+        targetList.setName(updateBoardListRequest.getName());
+
+        // Save the updated
+        boardListRepository.save(targetList);
+
+        return targetList;
     }
 
 

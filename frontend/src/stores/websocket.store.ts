@@ -1,7 +1,13 @@
 import {create} from 'zustand';
 import {Client} from "@stomp/stompjs";
 import {BROKER_URL} from "@/environment";
-import {Board, BoardList, CreateUpdateStatusTypeRequest, UpdateListItemRequest} from "@/types/board.types";
+import {
+  Board,
+  BoardList,
+  CreateUpdateStatusTypeRequest,
+  UpdateBoardListRequest,
+  UpdateListItemRequest
+} from "@/types/board.types";
 import {User} from "@/types/auth.types";
 import {AppRouterInstance} from "next/dist/shared/lib/app-router-context.shared-runtime";
 
@@ -38,6 +44,7 @@ interface WebSocketStore {
   // Handling updating board lists
   updatedBoardList: BoardList | null;
   resetUpdatedBoardList: () => void;
+  updateBoardList: (updateBoardListRequest: UpdateBoardListRequest) => void;
 
   createListItem: (title: string, listId: number) => Promise<void>;
   updateListItem: (updateListItemRequest: UpdateListItemRequest, listId: number, listItemId: number) => Promise<void>;
@@ -267,6 +274,21 @@ export const useWebSocketStore = create<WebSocketStore>((set, get) => ({
   updatedBoardList: null,
   resetUpdatedBoardList: () => {
     set({ updatedBoardList: null });
+  },
+
+  updateBoardList: (updateBoardListRequest: UpdateBoardListRequest) => {
+    const boardId = get().boardId;
+
+    if (!boardId || get().isPending) return;
+
+    set({ isPending: true });
+
+    const client = get().client;
+
+    client.publish({
+      destination: `/app/boards/${boardId}/lists/${updateBoardListRequest.boardListId}/update`,
+      body: JSON.stringify(updateBoardListRequest)
+    });
   },
 
   createListItem: async (title: string, listId: number) => {

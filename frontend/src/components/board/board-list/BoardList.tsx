@@ -4,11 +4,33 @@ import ListItem from "@/components/board/list-item/ListItem";
 import CreateNewListItem from "@/components/board/list-item/CreateNewListItem";
 import {useSortable} from "@dnd-kit/sortable";
 import {CSS} from "@dnd-kit/utilities";
+import ClickAwayListener from "@mui/material/ClickAwayListener";
+import React, {useState} from "react";
+import ScreenPanelOverlay from "@/components/ScreenPanelOverlay";
+import EditName from "@/components/board/board-list/EditName";
 
 export const BoardList = ({boardList}: {
   boardList: BoardListType;
 }) => {
 
+  const [isShowingContextMenu, setIsShowingContextMenu] = useState(false);
+  const [contextClickPos, setContextClickPos] = useState({x: 0, y: 0});
+  const [isEditingName, setIsEditingName] = useState(false);
+
+  const toggleContextMenu = (event: React.MouseEvent | React.TouchEvent) => {
+    event.preventDefault();
+    setIsShowingContextMenu(prev => !prev);
+    if ("clientX" in event && "clientY" in event) {
+      setContextClickPos({x: event.clientX, y: event.clientY});
+    } else {
+      setContextClickPos({x: 0, y: 0});
+    }
+  }
+
+  const handleShowEditingName = () => {
+    setIsShowingContextMenu(false);
+    setIsEditingName(true);
+  }
 
   const {attributes, listeners, setNodeRef, transition, transform} = useSortable({
     id: boardList.boardListId,
@@ -21,11 +43,26 @@ export const BoardList = ({boardList}: {
 
   return (
     <div
-      className="min-w-72 min-h-24 h-fit max-h-full flex flex-col p-2 gap-4 bg-secondary-dark shadow-xl hover:shadow-2xl rounded-md border-secondary-dark border hover:border-accent duration-200 " style={style}>
+      className="min-w-72 min-h-24 h-fit max-h-full flex flex-col p-2 gap-4 bg-secondary-dark shadow-xl hover:shadow-2xl rounded-md border-secondary-dark border hover:border-accent duration-200 "
+      style={style}
+    >
 
-      <div className="cursor-pointer" ref={setNodeRef} {...attributes} {...listeners}>
+      <div className="cursor-pointer" ref={setNodeRef} {...attributes} {...listeners} onContextMenu={toggleContextMenu}>
         <h2 className="text-white font-semibold text-lg">{boardList.name}</h2>
       </div>
+
+      {isShowingContextMenu && (
+        <ClickAwayListener onClickAway={() => setIsShowingContextMenu(false)}>
+          <div
+            className={`fixed flex items-center justify-center z-40 bg-dark border-accent border text-white rounded-md shadow-xl p-2`}
+            style={{
+              top: `${contextClickPos.y}px`,
+              left: `${contextClickPos.x}px`,
+            }}>
+            <button className="submit-btn" onClick={handleShowEditingName}>Edit Name</button>
+          </div>
+        </ClickAwayListener>
+      )}
 
       {boardList.listItems?.sort((a, b) => a.position - b.position)
         .map((listItem) => (
@@ -34,9 +71,12 @@ export const BoardList = ({boardList}: {
 
       <CreateNewListItem boardList={boardList}/>
 
+      {isEditingName && (
+        <ScreenPanelOverlay>
+          <EditName currentName={boardList.name} close={() => setIsEditingName(false)} boardListId={boardList.boardListId}/>
+        </ScreenPanelOverlay>
+      )}
+
     </div>
   );
 };
-
-
-

@@ -58,3 +58,8 @@ export type UpdateListItemRequest = {
   position: number;
   color: string | null;
 }
+
+export type UpdateBoardListRequest = {
+  boardListId: number;
+  name: string;
+}

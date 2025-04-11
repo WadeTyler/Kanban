@@ -2,6 +2,7 @@ package net.tylerwade.kanban.controller.BoardListWSController;
 
 import net.tylerwade.kanban.dto.CreateBoardListRequest;
 import net.tylerwade.kanban.dto.UpdateAllBoardListsRequest;
+import net.tylerwade.kanban.dto.UpdateBoardListRequest;
 import net.tylerwade.kanban.exception.BadRequestException;
 import net.tylerwade.kanban.exception.NotFoundException;
 import net.tylerwade.kanban.exception.UnauthorizedException;
@@ -13,7 +14,6 @@ import net.tylerwade.kanban.service.board.BoardService;
 import net.tylerwade.kanban.service.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
-import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
@@ -48,13 +48,23 @@ public class BoardListWSControllerImpl implements BoardListWSController {
     }
 
     @Override
-    public void updateBoardLists(@DestinationVariable String boardId, Principal principal, @Payload UpdateAllBoardListsRequest updatedBoardListsRequests) throws UnauthorizedException, NotFoundException {
+    public void updateAllBoardLists(@DestinationVariable String boardId, Principal principal, @Payload UpdateAllBoardListsRequest updatedBoardListsRequests) throws UnauthorizedException, NotFoundException {
         User user = userService.getUser(principal.getName());
         Board board = boardService.getBoardById(boardId, user);
 
         BoardList[] updatedBoardLists = boardListService.updateBoardLists(board, updatedBoardListsRequests);
 
         this.messagingTemplate.convertAndSend("/topic/boards/" + boardId + "/lists/updated/all", updatedBoardLists);
+    }
+
+    @Override
+    public void updateBoardList(String boardId, Long listId, Principal principal, UpdateBoardListRequest updateBoardListRequest) throws UnauthorizedException, NotFoundException, BadRequestException {
+        User user = userService.getUser(principal.getName());
+        Board board = boardService.getBoardById(boardId, user);
+
+        BoardList updatedBoardList = boardListService.updateBoardList(board, listId, updateBoardListRequest, user);
+
+        this.messagingTemplate.convertAndSend("/topic/boards/" + boardId + "/lists/updated", updatedBoardList);
     }
 
 }

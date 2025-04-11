@@ -2,6 +2,7 @@ package net.tylerwade.kanban.controller.BoardListWSController;
 
 import net.tylerwade.kanban.dto.CreateBoardListRequest;
 import net.tylerwade.kanban.dto.UpdateAllBoardListsRequest;
+import net.tylerwade.kanban.dto.UpdateBoardListRequest;
 import net.tylerwade.kanban.exception.BadRequestException;
 import net.tylerwade.kanban.exception.NotFoundException;
 import net.tylerwade.kanban.exception.UnauthorizedException;
@@ -42,6 +43,21 @@ public interface BoardListWSController {
      * @throws NotFoundException     if the specified board is not found
      */
     @MessageMapping("/boards/{boardId}/lists/update")
-    void updateBoardLists(@DestinationVariable String boardId, Principal principal, @Payload UpdateAllBoardListsRequest updatedBoardListsRequests) throws UnauthorizedException, NotFoundException;
+    void updateAllBoardLists(@DestinationVariable String boardId, Principal principal, @Payload UpdateAllBoardListsRequest updatedBoardListsRequests) throws UnauthorizedException, NotFoundException;
+
+    /**
+     * Handles updating a single board list for a specific board.
+     *
+     * @param boardId                the ID of the board where the list is located
+     * @param listId                 the ID of the list to be updated
+     * @param principal              the authenticated user
+     * @param updateBoardListRequest the request payload containing the updated details of the board list
+     * @throws UnauthorizedException if the user is not authorized to perform this action
+     * @throws NotFoundException     if the specified board or list is not found
+     * @throws BadRequestException   if the request payload is invalid
+     */
+    @MessageMapping("/boards/{boardId}/lists/{listId}/update")
+    void updateBoardList(@DestinationVariable String boardId, @DestinationVariable Long listId, Principal principal, @Payload UpdateBoardListRequest updateBoardListRequest) throws UnauthorizedException, NotFoundException, BadRequestException;
+
 
 }
