@@ -3,6 +3,7 @@ package net.tylerwade.kanban.service.board;
 import net.tylerwade.kanban.dto.AddMemberRequest;
 import net.tylerwade.kanban.dto.CreateBoardRequest;
 import net.tylerwade.kanban.dto.CreateUpdateStatusRequest;
+import net.tylerwade.kanban.dto.UpdateBoardDetailsRequest;
 import net.tylerwade.kanban.exception.BadRequestException;
 import net.tylerwade.kanban.exception.NotFoundException;
 import net.tylerwade.kanban.exception.UnauthorizedException;
@@ -136,4 +137,14 @@ public interface BoardService {
      * @throws NotFoundException     if the board is not found
      */
     Boolean deleteBoard(Board board, User user) throws UnauthorizedException, NotFoundException;
+
+    /**
+     * Updates the details of a board.
+     *
+     * @param board                     the board to be updated
+     * @param updateBoardDetailsRequest the request object containing updated details of the board
+     * @param user                      the user performing the update (must be the owner of the board)
+     * @return the updated Board object
+     */
+    Board updateBoardDetails(Board board, UpdateBoardDetailsRequest updateBoardDetailsRequest, User user) throws NotFoundException, UnauthorizedException, BadRequestException;
 }

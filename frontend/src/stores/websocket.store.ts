@@ -4,7 +4,7 @@ import {BROKER_URL} from "@/environment";
 import {
   Board,
   BoardList,
-  CreateUpdateStatusTypeRequest,
+  CreateUpdateStatusTypeRequest, UpdateBoardDetailsRequest,
   UpdateBoardListRequest,
   UpdateListItemRequest
 } from "@/types/board.types";
@@ -27,6 +27,7 @@ interface WebSocketStore {
   // Handling updating board
   updatedBoard: Board | null;
   resetUpdatedBoard: () => void;
+  updateBoard: (updateBoardDetailsRequest: UpdateBoardDetailsRequest) => void;
   createStatusType: (createStatusTypeRequest: CreateUpdateStatusTypeRequest) => Promise<void>;
   deleteStatusType: (statusTypeId: number) => Promise<void>;
   updateStatusType: (statusTypeId: number, updateStatusTypeRequest: CreateUpdateStatusTypeRequest) => Promise<void>;
@@ -185,6 +186,20 @@ export const useWebSocketStore = create<WebSocketStore>((set, get) => ({
   updatedBoard: null,
   resetUpdatedBoard: () => {
     set({ updatedBoard: null });
+  },
+
+  updateBoard: (updateBoardDetailsRequest: UpdateBoardDetailsRequest) => {
+    const boardId = get().boardId;
+    if (!boardId || get().isPending) return;
+
+    set({ isPending: true });
+
+    const client = get().client;
+
+    client.publish({
+      destination: `/app/boards/${boardId}/update`,
+      body: JSON.stringify(updateBoardDetailsRequest)
+    });
   },
 
   // Create a new status type

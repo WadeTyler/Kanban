@@ -1,6 +1,7 @@
 package net.tylerwade.kanban.controller.BoardWSController;
 
 import net.tylerwade.kanban.dto.CreateUpdateStatusRequest;
+import net.tylerwade.kanban.dto.UpdateBoardDetailsRequest;
 import net.tylerwade.kanban.exception.BadRequestException;
 import net.tylerwade.kanban.exception.NotFoundException;
 import net.tylerwade.kanban.exception.UnauthorizedException;
@@ -87,4 +88,14 @@ public interface BoardWSController {
      */
     @MessageMapping("/boards/{boardId}/delete")
     void deleteBoard(@DestinationVariable String boardId, Principal principal) throws NotFoundException, UnauthorizedException;
+
+    /**
+     * Handles the update of board details.
+     *
+     * @param boardId                   the ID of the board to update
+     * @param principal                 the authenticated user
+     * @param updateBoardDetailsRequest the request payload containing updated details of the board
+     */
+    @MessageMapping("/boards/{boardId}/update")
+    void updateBoard(@DestinationVariable String boardId, Principal principal, @Payload UpdateBoardDetailsRequest updateBoardDetailsRequest) throws NotFoundException, UnauthorizedException, BadRequestException;
 }

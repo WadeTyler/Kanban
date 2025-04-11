@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
 import {Board} from "@/types/board.types";
-import {RiDeleteBin3Line, RiLogoutBoxLine, RiTimelineView, RiUserLine} from "@remixicon/react";
+import {RiDeleteBin3Line, RiEdit2Line, RiLogoutBoxLine, RiTimelineView, RiUserLine} from "@remixicon/react";
 import Link from "next/link";
 import useBoardStore from "@/stores/board.store";
 import {useRouter} from "next/navigation";
@@ -10,8 +10,9 @@ import ConfirmPanel from "@/components/ConfirmPanel";
 import {useWebSocketStore} from "@/stores/websocket.store";
 import ClickAwayListener from "@mui/material/ClickAwayListener";
 
-const BoardSettings = ({board, editStatusTypes, closeSettings}: {
+const BoardSettings = ({board, editStatusTypes, closeSettings, editBoardDetails}: {
   board: Board;
+  editBoardDetails: () => void;
   editStatusTypes: () => void;
   closeSettings: () => void;
 }) => {
@@ -23,6 +24,8 @@ const BoardSettings = ({board, editStatusTypes, closeSettings}: {
   const {leaveBoard, leaveBoardError, isLeavingBoard} = useBoardStore();
   const {deleteBoard, isPending} = useWebSocketStore();
   const {user} = useAuthStore();
+
+  const isOwner = user?.userId === board.owner.userId;
 
   // States
   const [isConfirmingLeaveBoard, setIsConfirmingLeaveBoard] = useState<boolean>(false);
@@ -57,13 +60,24 @@ const BoardSettings = ({board, editStatusTypes, closeSettings}: {
     <ClickAwayListener onClickAway={closeSettings}>
       <div
         className="absolute bg-secondary-dark w-fit h-fit right-0 top-full mt-2 rounded-md shadow-xl text-white p-4 duration-200 border border-transparent hover:border-accent flex flex-col gap-2">
+        {isOwner && (
+          <>
+            <button className="hover-btn2 justify-start!" onClick={editBoardDetails}>
+              <RiEdit2Line/>
+              Edit Board Details
+            </button>
+            <hr className="w-full text-secondary"/>
+          </>
+        )}
+
         <Link href={`/boards/${board.boardId}/members`}
               className="hover-btn2 justify-start!"><RiUserLine/>Members</Link>
-        <button className="hover-btn2 justify-start!" onClick={handleClickEditStatusTypes}><RiTimelineView/>Status Types</button>
+        <button className="hover-btn2 justify-start!" onClick={handleClickEditStatusTypes}><RiTimelineView/>Status Types
+        </button>
 
-        <hr className="border border-secondary"/>
+        <hr className="text-secondary w-full"/>
 
-        {board.owner.userId !== user?.userId && (
+        {!isOwner && (
           <button className="danger-btn whitespace-nowrap border-white! hover:border-danger!" disabled={isLeavingBoard}
                   onClick={() => setIsConfirmingLeaveBoard(true)}>
             {!isLeavingBoard
@@ -81,7 +95,7 @@ const BoardSettings = ({board, editStatusTypes, closeSettings}: {
           </button>
         )}
 
-        {board.owner.userId === user?.userId && (
+        {isOwner && (
           <button className="danger-btn whitespace-nowrap border-white! hover:border-danger!"
                   onClick={() => setIsConfirmingDeleteBoard(true)}>
             {!isPending ? (

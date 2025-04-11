@@ -1,6 +1,7 @@
 package net.tylerwade.kanban.controller.BoardWSController;
 
 import net.tylerwade.kanban.dto.CreateUpdateStatusRequest;
+import net.tylerwade.kanban.dto.UpdateBoardDetailsRequest;
 import net.tylerwade.kanban.exception.BadRequestException;
 import net.tylerwade.kanban.exception.NotFoundException;
 import net.tylerwade.kanban.exception.UnauthorizedException;
@@ -113,14 +114,20 @@ public class BoardWSControllerImpl implements BoardWSController {
         User user = userService.getUser(principal.getName());
         Board board = boardService.getBoardById(boardId, user);
 
-        System.out.println("Here");
-
         Boolean isDeleted = boardService.deleteBoard(board, user);
-
-        System.out.println(isDeleted);
 
         if (isDeleted) {
             this.messagingTemplate.convertAndSend("/topic/boards/" + boardId + "/deleted", "Board deleted successfully");
         }
+    }
+
+    @Override
+    public void updateBoard(String boardId, Principal principal, UpdateBoardDetailsRequest updateBoardDetailsRequest) throws NotFoundException, UnauthorizedException, BadRequestException {
+        User user = userService.getUser(principal.getName());
+        Board board = boardService.getBoardById(boardId, user);
+
+        Board updatedBoard = boardService.updateBoardDetails(board, updateBoardDetailsRequest, user);
+
+        this.messagingTemplate.convertAndSend("/topic/boards/" + boardId + "/updated", updatedBoard);
     }
 }

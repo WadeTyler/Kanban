@@ -63,3 +63,9 @@ export type UpdateBoardListRequest = {
   boardListId: number;
   name: string;
 }
+
+
+export type UpdateBoardDetailsRequest = {
+  name: string;
+  description: string | null | undefined;
+}

@@ -14,6 +14,7 @@ import EditStatusTypes from "@/components/board/EditStatusTypes";
 import BoardPageHeader from "@/components/board/BoardPageHeader";
 import BoardLists from "@/components/board/board-list/BoardLists";
 import ErrorToast from "@/components/ErrorToast";
+import EditBoardDetails from "@/components/board/EditBoardDetails";
 
 const Page = () => {
   // Nav
@@ -26,6 +27,7 @@ const Page = () => {
   const [isShowingSettings, setIsShowingSettings] = useState<boolean>(false);
   const [isEditingStatusTypes, setIsEditingStatusTypes] = useState<boolean>(false);
   const [errorMessageQueue, setErrorMessageQueue] = useState<string[]>([]);
+  const [isEditingBoardDetails, setIsEditingBoardDetails] = useState<boolean>(false);
 
   // Store
   const {loadBoard, isLoadingBoard, loadBoardError} = useBoardStore();
@@ -179,7 +181,9 @@ const Page = () => {
 
             <BoardPageHeader board={board} isShowingSettings={isShowingSettings}
                              setIsShowingSettings={setIsShowingSettings}
-                             setIsEditingStatusTypes={setIsEditingStatusTypes}/>
+                             setIsEditingStatusTypes={setIsEditingStatusTypes}
+                             setIsEditingBoardDetails={setIsEditingBoardDetails}
+            />
 
             <hr className="text-secondary"/>
 
@@ -198,13 +202,19 @@ const Page = () => {
               </ScreenPanelOverlay>
             )}
 
+            {isEditingBoardDetails && (
+              <ScreenPanelOverlay>
+                <EditBoardDetails board={board} closeFunction={() => setIsEditingBoardDetails(false)}/>
+              </ScreenPanelOverlay>
+            )}
+
           </div>
         )}
 
         {errorMessageQueue.length > 0 && (
           <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 flex flex-col gap-2">
             {errorMessageQueue.map((errorMessage, index) => (
-              <ErrorToast errorMessage={errorMessage} key={index} />
+              <ErrorToast errorMessage={errorMessage} key={index}/>
             ))}
           </div>
         )}

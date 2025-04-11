@@ -264,4 +264,38 @@ public class BoardServiceImpl implements BoardService {
         boardRepository.delete(managedBoard);
         return true;
     }
+
+
+    @Override
+    @Transactional
+    public Board updateBoardDetails(Board board, UpdateBoardDetailsRequest updateBoardDetailsRequest, User user) throws NotFoundException, UnauthorizedException, BadRequestException {
+        // Get managed board
+        Board managedBoard = boardRepository.findById(board.getBoardId())
+                .orElseThrow(() -> new NotFoundException("Board not found."));
+
+        // Check if user is the owner
+        if (!managedBoard.getOwner().getUserId().equals(user.getUserId())) {
+            throw new UnauthorizedException("You are not authorized to update this board.");
+        }
+
+        // Check name field
+        if (updateBoardDetailsRequest.getName() == null || updateBoardDetailsRequest.getName().isEmpty()) {
+            throw new BadRequestException("Board name cannot be null or empty");
+        }
+
+        // Check if user already has a board with the same name
+        Board existingBoard = boardRepository.findByNameAndOwner(updateBoardDetailsRequest.getName(), user).orElse(null);
+        if (existingBoard != null && !existingBoard.getBoardId().equals(managedBoard.getBoardId())) {
+            throw new BadRequestException("You already have a board with this name");
+        }
+
+        // Update board details
+        managedBoard.setName(updateBoardDetailsRequest.getName());
+        managedBoard.setDescription(updateBoardDetailsRequest.getDescription());
+
+        // Save the updated board
+        boardRepository.save(managedBoard);
+        // Return the updated board
+        return managedBoard;
+    }
 }

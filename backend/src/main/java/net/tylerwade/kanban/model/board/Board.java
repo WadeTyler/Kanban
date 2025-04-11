@@ -32,12 +32,13 @@ public class Board {
      * The name of the board.
      * This field is required and cannot be null.
      */
-    @Column(nullable = false)
+    @Column(nullable = false, length = 50)
     private String name;
 
     /**
      * A brief description of the board.
      */
+    @Column(nullable = true, length = 500)
     private String description;
 
     /**
